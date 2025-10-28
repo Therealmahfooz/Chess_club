@@ -1,0 +1,3198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE CHESS CLUB</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* All existing CSS styles remain exactly the same */
+    :root {
+      --black-gradient: linear-gradient(145deg, #111, #000);
+      --white-gradient: linear-gradient(145deg, #f9f9f9, #c0c0c0);
+      --shadow-dark: rgba(0, 0, 0, 0.7);
+      --shadow-light: rgba(255, 255, 255, 0.7);
+      --highlight-white: 0 0 12px #ffffff, 0 0 24px #d1d1d1;
+      --highlight-black: 0 0 12px #00aaff, 0 0 25px #0077cc;
+      --white-piece-color: #f5f5f5;
+      --white-piece-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+      --black-piece-color: #111;
+      --valid-move-color: rgba(0, 255, 0, 0.3);
+      --capture-move-color: rgba(255, 0, 0, 0.3);
+      --check-color: #ff4444;
+      --checkmate-color: #ff0000;
+      --win-color: #00ff00;
+      --button-color: #00aaff;
+      
+      /* Theme variables */
+      --theme-bg: radial-gradient(circle at center, #0a0a0a, #000);
+      --theme-text: #f0f0f0;
+      --board-border: #ccc;
+      --board-shadow: 0 12px 45px rgba(255, 255, 255, 0.05),
+                      inset 0 0 20px rgba(255, 255, 255, 0.05);
+      --kill-count-bg: rgba(255, 255, 255, 0.1);
+      --kill-count-border: rgba(255, 255, 255, 0.2);
+      --modal-bg: rgba(40, 40, 40, 0.95);
+      --modal-border: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Wooden Theme */
+    .theme-wooden {
+      --theme-bg: radial-gradient(circle at center, #d7ccc8, #a1887f);
+      --theme-text: #5d4037;
+      --board-border: #8d6e63;
+      --board-shadow: 0 12px 45px rgba(0, 0, 0, 0.2),
+                      inset 0 0 20px rgba(0, 0, 0, 0.1);
+      --kill-count-bg: rgba(141, 110, 99, 0.2);
+      --kill-count-border: rgba(141, 110, 99, 0.4);
+      --modal-bg: rgba(188, 170, 164, 0.95);
+      --modal-border: rgba(141, 110, 99, 0.5);
+    }
+
+    body {
+      background: var(--theme-bg);
+      color: var(--theme-text);
+      font-family: "Poppins", sans-serif;
+      text-align: center;
+      padding: 20px 10px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s ease;
+      position: relative;
+    }
+
+    .game-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    h1 {
+      font-weight: 700;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+      margin-bottom: 15px;
+      font-size: 3rem;
+      background: linear-gradient(45deg, #fff, #00aaff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .theme-wooden h1 {
+      background: linear-gradient(45deg, #5d4037, #8d6e63);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Settings Button */
+    .settings-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(0, 170, 255, 0.2);
+      border: 2px solid var(--button-color);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
+    }
+
+    .theme-wooden .settings-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      box-shadow: 0 0 10px rgba(141, 110, 99, 0.3);
+    }
+
+    .settings-btn:hover {
+      background: rgba(0, 170, 255, 0.4);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .settings-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    /* Undo Button */
+    .undo-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 193, 7, 0.2);
+      border: 2px solid #ffc107;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+    }
+
+    .theme-wooden .undo-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      box-shadow: 0 0 10px rgba(141, 110, 99, 0.3);
+    }
+
+    .undo-btn:hover {
+      background: rgba(255, 193, 7, 0.4);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+    }
+
+    .theme-wooden .undo-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    .undo-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .undo-btn:disabled:hover {
+      background: rgba(255, 193, 7, 0.2);
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      background: var(--modal-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--modal-border);
+      z-index: 10;
+      width: 300px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .theme-wooden .settings-panel {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-panel.show {
+      display: block;
+    }
+
+    .settings-panel h3 {
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      border-bottom: 2px solid var(--button-color);
+      padding-bottom: 10px;
+      color: #fff;
+    }
+
+    .theme-wooden .settings-panel h3 {
+      color: #5d4037;
+      border-bottom: 2px solid #8d6e63;
+    }
+
+    .settings-section {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .settings-section h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .theme-wooden .settings-section h4 {
+      color: #5d4037;
+    }
+
+    .settings-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mode-btn, .theme-btn, .settings-option-btn {
+      background: rgba(0, 170, 255, 0.2);
+      border: 2px solid var(--button-color);
+      color: #fff;
+      padding: 10px 25px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .theme-wooden .mode-btn, .theme-wooden .theme-btn, .theme-wooden .settings-option-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      text-shadow: none;
+    }
+
+    .mode-btn:hover, .theme-btn:hover, .settings-option-btn:hover {
+      background: rgba(0, 170, 255, 0.4);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .mode-btn:hover, .theme-wooden .theme-btn:hover, .theme-wooden .settings-option-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    .mode-btn.active, .settings-option-btn.active {
+      background: var(--button-color);
+      box-shadow: 0 0 20px rgba(0, 170, 255, 0.7);
+    }
+
+    .theme-wooden .mode-btn.active, .theme-wooden .settings-option-btn.active {
+      background: #8d6e63;
+      box-shadow: 0 0 20px rgba(141, 110, 99, 0.7);
+    }
+
+    .difficulty-selector {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-wooden .difficulty-selector {
+      background: rgba(141, 110, 99, 0.2);
+      border: 1px solid rgba(141, 110, 99, 0.4);
+    }
+
+    .difficulty-selector.hidden {
+      display: none;
+    }
+
+    .difficulty-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .theme-wooden .difficulty-btn {
+      background: rgba(141, 110, 99, 0.2);
+      border: 2px solid rgba(141, 110, 99, 0.4);
+      color: #5d4037;
+    }
+
+    .difficulty-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-wooden .difficulty-btn:hover {
+      background: rgba(141, 110, 99, 0.3);
+    }
+
+    .difficulty-btn.active {
+      background: rgba(0, 170, 255, 0.4);
+      border-color: var(--button-color);
+    }
+
+    .theme-wooden .difficulty-btn.active {
+      background: rgba(141, 110, 99, 0.5);
+      border-color: #8d6e63;
+    }
+
+    .sound-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-wooden .sound-toggle {
+      background: rgba(141, 110, 99, 0.2);
+      border: 2px solid rgba(141, 110, 99, 0.4);
+      color: #5d4037;
+    }
+
+    .sound-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .theme-wooden .sound-toggle:hover {
+      background: rgba(141, 110, 99, 0.3);
+    }
+
+    .sound-toggle.active {
+      background: rgba(0, 255, 0, 0.3);
+      border-color: #00ff00;
+    }
+
+    .theme-wooden .sound-toggle.active {
+      background: rgba(76, 175, 80, 0.3);
+      border-color: #4caf50;
+    }
+
+    .game-status {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      min-height: 2rem;
+    }
+
+    .check-status {
+      color: var(--check-color);
+      text-shadow: 0 0 10px var(--check-color);
+      animation: pulse 1.5s infinite;
+    }
+
+    .checkmate-status {
+      color: var(--checkmate-color);
+      text-shadow: 0 0 15px var(--checkmate-color);
+      font-size: 2rem;
+      animation: pulse 0.8s infinite;
+    }
+
+    .win-status {
+      color: var(--win-color);
+      text-shadow: 0 0 15px var(--win-color);
+      font-size: 2.5rem;
+      animation: celebrate 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+
+    @keyframes celebrate {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .turn-indicator {
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin-bottom: 25px;
+    }
+
+    .turn-indicator span {
+      font-weight: bold;
+      text-shadow: 0 0 10px #fff;
+    }
+
+    .theme-wooden .turn-indicator span {
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.5);
+    }
+
+    .board-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      margin-bottom: 30px;
+      position: relative;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      width: 90vw;
+      max-width: 600px;
+      aspect-ratio: 1 / 1;
+      border: 6px solid var(--board-border);
+      border-radius: 12px;
+      box-shadow: var(--board-shadow);
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      transition: all 0.5s ease;
+    }
+
+    .board.game-over {
+      filter: blur(8px);
+      transform: scale(0.98);
+    }
+
+    .game-over-message {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      padding: 40px;
+      border-radius: 15px;
+      border: 3px solid gold;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+      z-index: 100;
+      text-align: center;
+      animation: popIn 0.6s ease-out;
+    }
+
+    .theme-wooden .game-over-message {
+      background: rgba(93, 64, 55, 0.9);
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+    }
+
+    @keyframes popIn {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+      70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .game-over-message h2 {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      color: gold;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    }
+
+    .game-over-message p {
+      font-size: 1.5rem;
+      margin-bottom: 25px;
+      color: #fff;
+    }
+
+    .theme-wooden .game-over-message p {
+      color: #f5f5f5;
+    }
+
+    .restart-btn {
+      background: linear-gradient(45deg, #00aaff, #0077cc);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .restart-btn {
+      background: linear-gradient(45deg, #8d6e63, #6d4c41);
+      box-shadow: 0 0 20px rgba(141, 110, 99, 0.5);
+    }
+
+    .restart-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(0, 170, 255, 0.7);
+    }
+
+    .theme-wooden .restart-btn:hover {
+      box-shadow: 0 0 30px rgba(141, 110, 99, 0.7);
+    }
+
+    .kill-count {
+      background: var(--kill-count-bg);
+      border-radius: 12px;
+      padding: 20px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      border: 2px solid var(--kill-count-border);
+      margin-top: 20px;
+    }
+
+    .kill-count h3 {
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+      padding-bottom: 8px;
+    }
+
+    .theme-wooden .kill-count h3 {
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.3);
+      border-bottom: 2px solid rgba(93, 64, 55, 0.3);
+    }
+
+    .kill-sections {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      gap: 30px;
+    }
+
+    .kill-section {
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .kill-section h4 {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: #f0f0f0;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-wooden .kill-section h4 {
+      color: #5d4037;
+      text-shadow: 0 0 8px rgba(93, 64, 55, 0.2);
+    }
+
+    .kill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      min-height: 50px;
+      align-items: center;
+    }
+
+    .kill-piece {
+      font-size: 2rem;
+      display: inline-block;
+      transition: all 0.3s ease;
+    }
+
+    .kill-piece.new-capture {
+      animation: captureFlash 0.8s ease;
+    }
+
+    @keyframes captureFlash {
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .white-kills .kill-piece {
+      color: var(--white-piece-color);
+      text-shadow: var(--white-piece-shadow);
+    }
+
+    .black-kills .kill-piece {
+      color: var(--black-piece-color);
+      text-shadow: 0 0 6px #00aaff, 0 0 15px #005577;
+    }
+
+    .theme-wooden .black-kills .kill-piece {
+      text-shadow: 0 0 6px #8d6e63, 0 0 15px #6d4c41;
+    }
+
+    .square {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+      font-size: calc(2.5vw + 8px);
+      cursor: pointer;
+      transition: transform 0.25s ease, filter 0.25s ease;
+      position: relative;
+    }
+
+    .sq-light {
+      background: var(--white-gradient);
+      box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                  inset -2px -2px 4px var(--shadow-light);
+    }
+
+    .theme-wooden .sq-light {
+      background: linear-gradient(145deg, #e6d5c3, #d7ccc8);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+                  inset -2px -2px 4px rgba(255, 255, 255, 0.5);
+    }
+
+    .sq-dark {
+      background: var(--black-gradient);
+      box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                  inset -2px -2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-wooden .sq-dark {
+      background: linear-gradient(145deg, #8d6e63, #6d4c41);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4),
+                  inset -2px -2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .square:hover {
+      transform: scale(1.05);
+      filter: brightness(1.2);
+    }
+
+    .piece-white {
+      color: var(--white-piece-color);
+      text-shadow: var(--white-piece-shadow);
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 1;
+    }
+
+    .piece-black {
+      color: var(--black-piece-color);
+      text-shadow: 0 0 6px #00aaff, 0 0 15px #005577;
+      filter: drop-shadow(0 0 8px #0077cc);
+      transition: all 0.3s ease;
+    }
+
+    .theme-wooden .piece-black {
+      text-shadow: 0 0 6px #8d6e63, 0 0 15px #6d4c41;
+      filter: drop-shadow(0 0 8px #6d4c41);
+    }
+
+    .piece-white.selected {
+      text-shadow: var(--highlight-white);
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.8));
+    }
+
+    .piece-black.selected {
+      text-shadow: var(--highlight-black);
+      transform: scale(1.2);
+    }
+
+    .theme-wooden .piece-black.selected {
+      text-shadow: 0 0 12px #8d6e63, 0 0 25px #6d4c41;
+    }
+
+    .king-in-check {
+      text-shadow: 0 0 12px #ff4444, 0 0 25px #ff0000 !important;
+      animation: kingPulse 1s infinite;
+    }
+
+    @keyframes kingPulse {
+      0% { transform: scale(1.1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1.1); }
+    }
+
+    .valid-move::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30%;
+      height: 30%;
+      border-radius: 50%;
+      background-color: var(--valid-move-color);
+      z-index: 0;
+    }
+
+    .capture-move::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      background-color: var(--capture-move-color);
+      z-index: 0;
+    }
+
+    .king-capture-move::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+      background-color: rgba(255, 215, 0, 0.5);
+      z-index: 0;
+      animation: kingCapturePulse 0.8s infinite;
+    }
+
+    @keyframes kingCapturePulse {
+      0% { background-color: rgba(255, 215, 0, 0.3); }
+      50% { background-color: rgba(255, 215, 0, 0.7); }
+      100% { background-color: rgba(255, 215, 0, 0.3); }
+    }
+
+    /* Promotion Modal Styles */
+    .promotion-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .theme-wooden .promotion-modal {
+      background: rgba(93, 64, 55, 0.8);
+    }
+
+    .promotion-options {
+      background: var(--modal-bg);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 0 40px rgba(0, 170, 255, 0.3);
+      border: 1px solid var(--modal-border);
+      text-align: center;
+    }
+
+    .theme-wooden .promotion-options {
+      box-shadow: 0 0 40px rgba(141, 110, 99, 0.3);
+    }
+
+    .promotion-title {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .theme-wooden .promotion-title {
+      color: #5d4037;
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.5);
+    }
+
+    .promotion-pieces {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .promotion-piece {
+      font-size: 3rem;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(60, 60, 60, 0.7);
+    }
+
+    .theme-wooden .promotion-piece {
+      background: rgba(141, 110, 99, 0.3);
+    }
+
+    .promotion-piece.white {
+      color: #fff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .promotion-piece.black {
+      color: #111;
+      text-shadow: 0 0 8px rgba(0, 170, 255, 0.7);
+      border: 2px solid rgba(0, 170, 255, 0.3);
+    }
+
+    .theme-wooden .promotion-piece.black {
+      text-shadow: 0 0 8px rgba(141, 110, 99, 0.7);
+      border: 2px solid rgba(141, 110, 99, 0.5);
+    }
+
+    .promotion-piece:hover {
+      transform: scale(1.15);
+      background: rgba(80, 80, 80, 0.9);
+    }
+
+    .theme-wooden .promotion-piece:hover {
+      background: rgba(141, 110, 99, 0.5);
+    }
+
+    /* Player Names Modal Styles */
+    .player-names-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .theme-wooden .player-names-modal {
+      background: rgba(93, 64, 55, 0.8);
+    }
+
+    .player-names-form {
+      background: var(--modal-bg);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 0 40px rgba(0, 170, 255, 0.3);
+      border: 1px solid var(--modal-border);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .theme-wooden .player-names-form {
+      box-shadow: 0 0 40px rgba(141, 110, 99, 0.3);
+    }
+
+    .player-names-title {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .theme-wooden .player-names-title {
+      color: #5d4037;
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.5);
+    }
+
+    .player-input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .player-input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #f0f0f0;
+    }
+
+    .theme-wooden .player-input-group label {
+      color: #5d4037;
+    }
+
+    .player-input-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(60, 60, 60, 0.7);
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .theme-wooden .player-input-group input {
+      border: 2px solid rgba(141, 110, 99, 0.4);
+      background: rgba(188, 170, 164, 0.5);
+      color: #5d4037;
+    }
+
+    .player-input-group input:focus {
+      outline: none;
+      border-color: var(--button-color);
+      box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .player-input-group input:focus {
+      border-color: #8d6e63;
+      box-shadow: 0 0 10px rgba(141, 110, 99, 0.5);
+    }
+
+    .player-names-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .player-names-btn {
+      background: rgba(0, 170, 255, 0.2);
+      border: 2px solid var(--button-color);
+      color: #fff;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .theme-wooden .player-names-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      text-shadow: none;
+    }
+
+    .player-names-btn:hover {
+      background: rgba(0, 170, 255, 0.4);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .player-names-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    .player-names-btn.primary {
+      background: var(--button-color);
+      box-shadow: 0 0 20px rgba(0, 170, 255, 0.7);
+    }
+
+    .theme-wooden .player-names-btn.primary {
+      background: #8d6e63;
+      box-shadow: 0 0 20px rgba(141, 110, 99, 0.7);
+    }
+
+    @media (max-width: 768px) {
+      .kill-sections {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .kill-section {
+        min-width: 200px;
+      }
+      
+      .promotion-pieces {
+        gap: 10px;
+      }
+      
+      .promotion-piece {
+        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+      }
+
+      .settings-panel {
+        width: 280px;
+        right: 10px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .square {
+        font-size: calc(4vw + 6px);
+      }
+      
+      .kill-piece {
+        font-size: 1.8rem;
+      }
+      
+      .mode-buttons {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .mode-btn, .theme-btn, .settings-option-btn {
+        width: 200px;
+      }
+
+      .game-over-message {
+        padding: 20px;
+      }
+
+      .game-over-message h2 {
+        font-size: 2rem;
+      }
+
+      .game-over-message p {
+        font-size: 1.2rem;
+      }
+
+      .player-names-form {
+        padding: 20px;
+      }
+
+      .player-names-buttons {
+        flex-direction: column;
+      }
+
+      .settings-btn {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      .settings-panel {
+        top: 60px;
+        right: 10px;
+        width: 250px;
+      }
+
+      .undo-btn {
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="game-wrapper">
+    <h1>THE CHESS CLUB</h1>
+    
+    <!-- Undo Button -->
+    <button class="undo-btn" id="undoBtn" title="Undo Last Move">
+      ↶
+    </button>
+    
+    <!-- Settings Button -->
+    <button class="settings-btn" id="settingsBtn">
+      ⚙️
+    </button>
+    
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+      <h3>Game Settings</h3>
+      
+      <div class="settings-section">
+        <h4>Game Mode</h4>
+        <div class="settings-buttons">
+          <button class="settings-option-btn active" id="settingsPvpMode">Player vs Player</button>
+          <button class="settings-option-btn" id="settingsPvcMode">Player vs Computer</button>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h4>AI Difficulty</h4>
+        <div class="difficulty-selector" id="settingsDifficultySelector">
+          <button class="difficulty-btn" id="settingsEasyBtn">Easy</button>
+          <button class="difficulty-btn active" id="settingsMediumBtn">Medium</button>
+          <button class="difficulty-btn" id="settingsHardBtn">Hard</button>
+        </div>
+      </div>
+      
+      <div class="settings-section">
+        <h4>Sound & Theme</h4>
+        <div class="settings-buttons">
+          <button class="sound-toggle active" id="settingsSoundToggle">
+            <span>🔊</span> Sound On
+          </button>
+          <button class="settings-option-btn" id="settingsThemeToggle">
+            <span>🎨</span> Wood Theme
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="game-status" id="gameStatus"></div>
+    <div class="turn-indicator">Turn: <span id="turnDisplay">White</span></div>
+
+    <div class="board-container">
+      <div class="board" id="chessboard"></div>
+    </div>
+    
+    <div class="kill-count">
+      <h3>Captured Pieces</h3>
+      <div class="kill-sections">
+        <div class="kill-section white-kills">
+          <h4>White Captures</h4>
+          <div class="kill-list" id="whiteKills"></div>
+        </div>
+        
+        <div class="kill-section black-kills">
+          <h4>Black Captures</h4>
+          <div class="kill-list" id="blackKills"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Promotion Modal -->
+  <div class="promotion-modal" id="promotionModal" style="display: none;">
+    <div class="promotion-options">
+      <div class="promotion-title" id="promotionTitle">Choose Promotion</div>
+      <div class="promotion-pieces" id="promotionPieces"></div>
+    </div>
+  </div>
+
+  <!-- Player Names Modal -->
+  <div class="player-names-modal" id="playerNamesModal" style="display: none;">
+    <div class="player-names-form">
+      <div class="player-names-title">Enter Player Names</div>
+      <div class="player-input-group">
+        <label for="whitePlayerName">White Player Name:</label>
+        <input type="text" id="whitePlayerName" placeholder="Enter white player name" value="Player 1">
+      </div>
+      <div class="player-input-group">
+        <label for="blackPlayerName">Black Player Name:</label>
+        <input type="text" id="blackPlayerName" placeholder="Enter black player name" value="Player 2">
+      </div>
+      <div class="player-names-buttons">
+        <button class="player-names-btn" id="cancelPlayerNames">Cancel</button>
+        <button class="player-names-btn primary" id="savePlayerNames">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden audio elements for game sounds -->
+  <audio id="gameStartSound" preload="auto">
+    <!-- Yahan aap apna sound file add karein -->
+    Example: <source src="soundeffect/aaiye bc dekhte hai.mp3" type="audio/mp3">
+  </audio>
+  
+  <audio id="backgroundMusic" loop preload="auto">
+    <!-- Yahan aap background music add karein -->
+    <!-- Example: <source src="your-background-music.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- Pawn Capture Sound -->
+  <audio id="pawnCaptureSound" preload="auto">
+    <!-- Yahan aap apna pawn capture sound file add karein -->
+    Example: <source src="soundeffect/hatt thari bahen ki.mp3" type="audio/mp3">
+  </audio>
+  
+  <!-- King Check Sound -->
+  <audio id="kingCheckSound" preload="auto">
+    <!-- Yahan aap apna king check sound file add karein -->
+    Example: <source src="soundeffect/bade khatarnak log hai.mp3" type="audio/mp3">
+  </audio>
+  
+  <!-- 15 Second Sound -->
+  <audio id="fifteenSecondSound" preload="auto">
+    <!-- Yahan aap apna 15 second sound file add karein -->
+    Example: <source src="/soundeffect/jaldi bol kal subha panwel nikalna hai.mp3" type="audio/mp3">
+  </audio>
+  
+  <!-- Game Over Sound -->
+  <audio id="gameOverSound" preload="auto">
+    <!-- Yahan aap apna game over sound file add karein -->
+    Example: <source src="/soundeffect/roz aate hai is ummeed me aaj jeetenge.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- NEW: Rook Capture Sound -->
+  <audio id="rookCaptureSound" preload="auto">
+    <!-- Yahan aap apna rook capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/rook-capture.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- NEW: Knight Capture Sound -->
+  <audio id="knightCaptureSound" preload="auto">
+    <!-- Yahan aap apna knight capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/knight-capture.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- NEW: Bishop Capture Sound -->
+  <audio id="bishopCaptureSound" preload="auto">
+    <!-- Yahan aap apna bishop capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/bishop-capture.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- NEW: Queen Capture Sound -->
+  <audio id="queenCaptureSound" preload="auto">
+    <!-- Yahan aap apna queen capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/queen-capture.mp3" type="audio/mp3"> -->
+  </audio>
+
+  <script>
+    // Audio elements
+    const gameStartSound = document.getElementById("gameStartSound");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const pawnCaptureSound = document.getElementById("pawnCaptureSound");
+    const kingCheckSound = document.getElementById("kingCheckSound");
+    const fifteenSecondSound = document.getElementById("fifteenSecondSound");
+    const gameOverSound = document.getElementById("gameOverSound");
+    
+    // NEW: Rook, Knight, Bishop, Queen capture sounds
+    const rookCaptureSound = document.getElementById("rookCaptureSound");
+    const knightCaptureSound = document.getElementById("knightCaptureSound");
+    const bishopCaptureSound = document.getElementById("bishopCaptureSound");
+    const queenCaptureSound = document.getElementById("queenCaptureSound");
+    
+    // Play sound when the game loads
+    window.addEventListener('load', function() {
+      // Play the game start sound
+      if (soundEnabled) {
+        try {
+          gameStartSound.play().catch(e => {
+            console.log("Game start sound could not play automatically:", e);
+          });
+        } catch (error) {
+          console.log("Sound play error:", error);
+        }
+      }
+      
+      // Start the 15-second timer
+      startFifteenSecondTimer();
+    });
+
+    const board = document.getElementById("chessboard");
+    const turnDisplay = document.getElementById("turnDisplay");
+    const gameStatus = document.getElementById("gameStatus");
+    const whiteKills = document.getElementById("whiteKills");
+    const blackKills = document.getElementById("blackKills");
+    const promotionModal = document.getElementById("promotionModal");
+    const promotionTitle = document.getElementById("promotionTitle");
+    const promotionPieces = document.getElementById("promotionPieces");
+    
+    // Player names elements
+    const playerNamesModal = document.getElementById("playerNamesModal");
+    const whitePlayerNameInput = document.getElementById("whitePlayerName");
+    const blackPlayerNameInput = document.getElementById("blackPlayerName");
+    const cancelPlayerNamesBtn = document.getElementById("cancelPlayerNames");
+    const savePlayerNamesBtn = document.getElementById("savePlayerNames");
+    
+    // Settings elements
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const settingsPvpMode = document.getElementById("settingsPvpMode");
+    const settingsPvcMode = document.getElementById("settingsPvcMode");
+    const settingsDifficultySelector = document.getElementById("settingsDifficultySelector");
+    const settingsEasyBtn = document.getElementById("settingsEasyBtn");
+    const settingsMediumBtn = document.getElementById("settingsMediumBtn");
+    const settingsHardBtn = document.getElementById("settingsHardBtn");
+    const settingsSoundToggle = document.getElementById("settingsSoundToggle");
+    const settingsThemeToggle = document.getElementById("settingsThemeToggle");
+    
+    // Undo button
+    const undoBtn = document.getElementById("undoBtn");
+    
+    let selectedSquare = null;
+    let turn = "white";
+    let pawnFirstMove = {};
+    let gameOver = false;
+    let gameMode = "pvp";
+    let pendingPromotion = null;
+    let soundEnabled = true;
+    let difficulty = "medium";
+    let currentTheme = "default";
+    
+    // 15-second timer variables
+    let fifteenSecondTimer = null;
+    let fifteenSecondTimerRunning = false;
+    
+    // Player names
+    let playerNames = {
+      white: "Player 1",
+      black: "Player 2"
+    };
+
+    // Track captured pieces
+    let capturedPieces = {
+      white: [],
+      black: []
+    };
+
+    // Move history for undo functionality
+    let moveHistory = [];
+
+    const pieces = {
+      black: { king: "♚", queen: "♛", rook: "♜", bishop: "♝", knight: "♞", pawn: "♟" },
+      white: { king: "♔", queen: "♕", rook: "♖", bishop: "♗", knight: "♘", pawn: "♙" }
+    };
+
+    const pieceValues = {
+      pawn: 10,
+      knight: 30,
+      bishop: 30,
+      rook: 50,
+      queen: 90,
+      king: 900
+    };
+
+    const startingBoard = [
+      [pieces.black.rook, pieces.black.knight, pieces.black.bishop, pieces.black.queen, pieces.black.king, pieces.black.bishop, pieces.black.knight, pieces.black.rook],
+      Array(8).fill(pieces.black.pawn),
+      Array(8).fill(""),
+      Array(8).fill(""),
+      Array(8).fill(""),
+      Array(8).fill(""),
+      Array(8).fill(pieces.white.pawn),
+      [pieces.white.rook, pieces.white.knight, pieces.white.bishop, pieces.white.queen, pieces.white.king, pieces.white.bishop, pieces.white.knight, pieces.white.rook]
+    ];
+
+    // 15-second timer function
+    function startFifteenSecondTimer() {
+      if (fifteenSecondTimerRunning) {
+        clearTimeout(fifteenSecondTimer);
+      }
+      
+      fifteenSecondTimer = setTimeout(() => {
+        playFifteenSecondSound();
+        // Restart the timer after playing the sound
+        startFifteenSecondTimer();
+      }, 15000); // 15 seconds
+      
+      fifteenSecondTimerRunning = true;
+    }
+    
+    function stopFifteenSecondTimer() {
+      if (fifteenSecondTimer) {
+        clearTimeout(fifteenSecondTimer);
+        fifteenSecondTimerRunning = false;
+      }
+    }
+    
+    function resetFifteenSecondTimer() {
+      stopFifteenSecondTimer();
+      startFifteenSecondTimer();
+    }
+
+    // Sound effects using Web Audio API
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playSound(frequency, duration, type = 'sine', volume = 0.3) {
+      if (!soundEnabled) return;
+      
+      try {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.value = frequency;
+        oscillator.type = type;
+        
+        gainNode.gain.value = volume;
+        
+        oscillator.start();
+        
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + duration);
+        oscillator.stop(audioContext.currentTime + duration);
+      } catch (e) {
+        console.log("Sound error:", e);
+      }
+    }
+
+    function playMoveSound() {
+      playSound(523.25, 0.1, 'sine', 0.2);
+    }
+
+    function playCaptureSound() {
+      playSound(659.25, 0.2, 'square', 0.4);
+    }
+
+    function playCheckSound() {
+      // Use custom king check sound if available
+      if (soundEnabled) {
+        try {
+          kingCheckSound.currentTime = 0;
+          kingCheckSound.play().catch(e => {
+            console.log("King check sound could not play:", e);
+            // Fallback to regular check sound
+            playSound(783.99, 0.3, 'sawtooth', 0.5);
+          });
+        } catch (error) {
+          console.log("King check sound error:", error);
+          // Fallback to regular check sound
+          playSound(783.99, 0.3, 'sawtooth', 0.5);
+        }
+      }
+    }
+
+    function playCheckmateSound() {
+      playSound(523.25, 0.8, 'sine', 0.6);
+      setTimeout(() => playSound(659.25, 0.8, 'sine', 0.5), 100);
+      setTimeout(() => playSound(783.99, 0.8, 'sine', 0.4), 200);
+    }
+
+    function playPromotionSound() {
+      playSound(523.25, 0.15, 'sine', 0.4);
+      setTimeout(() => playSound(587.33, 0.15, 'sine', 0.4), 150);
+      setTimeout(() => playSound(659.25, 0.15, 'sine', 0.4), 300);
+      setTimeout(() => playSound(783.99, 0.3, 'sine', 0.5), 450);
+    }
+
+    function playWinSound() {
+      playSound(1046.50, 0.3, 'sine', 0.6);
+      setTimeout(() => playSound(1174.66, 0.3, 'sine', 0.6), 300);
+      setTimeout(() => playSound(1318.51, 0.3, 'sine', 0.6), 600);
+      setTimeout(() => playSound(1567.98, 0.5, 'sine', 0.7), 900);
+    }
+
+    function playSelectSound() {
+      playSound(392.00, 0.1, 'sine', 0.2);
+    }
+
+    function playErrorSound() {
+      playSound(220.00, 0.2, 'sawtooth', 0.3);
+    }
+
+    function playUndoSound() {
+      playSound(349.23, 0.2, 'sine', 0.3);
+    }
+
+    // NEW: Play 15-second sound
+    function playFifteenSecondSound() {
+      if (!soundEnabled || gameOver) return;
+      
+      try {
+        fifteenSecondSound.currentTime = 0;
+        fifteenSecondSound.play().catch(e => {
+          console.log("15-second sound could not play:", e);
+          // Fallback to regular sound
+          playSound(440.00, 0.5, 'sine', 0.3);
+        });
+      } catch (error) {
+        console.log("15-second sound error:", error);
+        // Fallback to regular sound
+        playSound(440.00, 0.5, 'sine', 0.3);
+      }
+    }
+
+    // NEW: Play game over sound (when king is captured)
+    function playGameOverSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        gameOverSound.currentTime = 0;
+        gameOverSound.play().catch(e => {
+          console.log("Game over sound could not play:", e);
+          // Fallback to regular win sound
+          playWinSound();
+        });
+      } catch (error) {
+        console.log("Game over sound error:", error);
+        // Fallback to regular win sound
+        playWinSound();
+      }
+    }
+
+    // NEW: Play pawn capture sound
+    function playPawnCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        pawnCaptureSound.currentTime = 0;
+        pawnCaptureSound.play().catch(e => {
+          console.log("Pawn capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Pawn capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play rook capture sound
+    function playRookCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        rookCaptureSound.currentTime = 0;
+        rookCaptureSound.play().catch(e => {
+          console.log("Rook capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Rook capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play knight capture sound
+    function playKnightCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        knightCaptureSound.currentTime = 0;
+        knightCaptureSound.play().catch(e => {
+          console.log("Knight capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Knight capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play bishop capture sound
+    function playBishopCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        bishopCaptureSound.currentTime = 0;
+        bishopCaptureSound.play().catch(e => {
+          console.log("Bishop capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Bishop capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play queen capture sound
+    function playQueenCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        queenCaptureSound.currentTime = 0;
+        queenCaptureSound.play().catch(e => {
+          console.log("Queen capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Queen capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // Undo functionality
+    function undoLastMove() {
+      if (moveHistory.length === 0 || gameOver || pendingPromotion) {
+        playErrorSound();
+        return;
+      }
+      
+      const lastMove = moveHistory.pop();
+      
+      // Restore the board state
+      const { fromRow, fromCol, toRow, toCol, piece, capturedPiece, pawnFirstMoveState, capturedPiecesState } = lastMove;
+      
+      // Move piece back to original position
+      const fromSquare = getSquare(fromRow, fromCol);
+      const toSquare = getSquare(toRow, toCol);
+      
+      // Clear both squares
+      fromSquare.innerHTML = "";
+      toSquare.innerHTML = "";
+      
+      // Place piece back in original position
+      const movedPiece = document.createElement("span");
+      movedPiece.textContent = piece;
+      movedPiece.classList.add(getPieceColor(piece) === "white" ? "piece-white" : "piece-black");
+      fromSquare.appendChild(movedPiece);
+      
+      // Restore captured piece if there was one
+      if (capturedPiece) {
+        const capturedPieceEl = document.createElement("span");
+        capturedPieceEl.textContent = capturedPiece;
+        capturedPieceEl.classList.add(getPieceColor(capturedPiece) === "white" ? "piece-white" : "piece-black");
+        toSquare.appendChild(capturedPieceEl);
+        
+        // Remove from captured pieces list
+        const capturingColor = getPieceColor(piece);
+        const capturedColor = getPieceColor(capturedPiece);
+        
+        if (capturedPieces[capturingColor].length > 0) {
+          capturedPieces[capturingColor].pop();
+        }
+      }
+      
+      // Restore pawn first move state
+      pawnFirstMove = { ...pawnFirstMoveState };
+      
+      // Restore captured pieces state
+      capturedPieces = {
+        white: [...capturedPiecesState.white],
+        black: [...capturedPiecesState.black]
+      };
+      
+      // Update turn
+      turn = turn === "white" ? "black" : "white";
+      updateTurnDisplay();
+      
+      // Update kill display
+      updateKillDisplay();
+      
+      // Update game status
+      updateGameStatus();
+      
+      // Update undo button state
+      updateUndoButtonState();
+      
+      // Reset 15-second timer
+      resetFifteenSecondTimer();
+      
+      // Play undo sound
+      playUndoSound();
+    }
+
+    function updateUndoButtonState() {
+      undoBtn.disabled = moveHistory.length === 0 || gameOver || pendingPromotion;
+    }
+
+    // Settings functionality
+    settingsBtn.addEventListener("click", () => {
+      settingsPanel.classList.toggle("show");
+      playSelectSound();
+    });
+    
+    // Close settings panel when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!settingsBtn.contains(e.target) && !settingsPanel.contains(e.target)) {
+        settingsPanel.classList.remove("show");
+      }
+    });
+    
+    // Settings panel game mode selection
+    settingsPvpMode.addEventListener("click", () => {
+      setGameMode("pvp");
+      settingsPvpMode.classList.add("active");
+      settingsPvcMode.classList.remove("active");
+      playSelectSound();
+    });
+
+    settingsPvcMode.addEventListener("click", () => {
+      setGameMode("pvc");
+      settingsPvcMode.classList.add("active");
+      settingsPvpMode.classList.remove("active");
+      playSelectSound();
+    });
+    
+    // Settings panel difficulty selection
+    settingsEasyBtn.addEventListener("click", () => {
+      setDifficulty("easy");
+      settingsEasyBtn.classList.add("active");
+      settingsMediumBtn.classList.remove("active");
+      settingsHardBtn.classList.remove("active");
+      playSelectSound();
+    });
+
+    settingsMediumBtn.addEventListener("click", () => {
+      setDifficulty("medium");
+      settingsMediumBtn.classList.add("active");
+      settingsEasyBtn.classList.remove("active");
+      settingsHardBtn.classList.remove("active");
+      playSelectSound();
+    });
+
+    settingsHardBtn.addEventListener("click", () => {
+      setDifficulty("hard");
+      settingsHardBtn.classList.add("active");
+      settingsEasyBtn.classList.remove("active");
+      settingsMediumBtn.classList.remove("active");
+      playSelectSound();
+    });
+    
+    // Settings panel sound toggle
+    settingsSoundToggle.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      settingsSoundToggle.classList.toggle("active", soundEnabled);
+      settingsSoundToggle.innerHTML = soundEnabled ? 
+        '<span>🔊</span> Sound On' : 
+        '<span>🔇</span> Sound Off';
+      
+      if (soundEnabled) {
+        playSound(523.25, 0.1, 'sine', 0.2);
+      }
+    });
+    
+    // Settings panel theme toggle
+    settingsThemeToggle.addEventListener("click", () => {
+      if (currentTheme === "default") {
+        document.body.classList.add("theme-wooden");
+        settingsThemeToggle.innerHTML = '<span>🎨</span> Dark Theme';
+        currentTheme = "wooden";
+      } else {
+        document.body.classList.remove("theme-wooden");
+        settingsThemeToggle.innerHTML = '<span>🎨</span> Wood Theme';
+        currentTheme = "default";
+      }
+      playSelectSound();
+    });
+
+    // Undo button event listener
+    undoBtn.addEventListener("click", undoLastMove);
+
+    // Difficulty selection
+    function setDifficulty(level) {
+      difficulty = level;
+      settingsEasyBtn.classList.toggle('active', level === 'easy');
+      settingsMediumBtn.classList.toggle('active', level === 'medium');
+      settingsHardBtn.classList.toggle('active', level === 'hard');
+    }
+
+    // Game mode selection
+    function setGameMode(mode) {
+      gameMode = mode;
+      
+      settingsPvpMode.classList.toggle('active', mode === 'pvp');
+      settingsPvcMode.classList.toggle('active', mode === 'pvc');
+      
+      // Show/hide difficulty selector
+      settingsDifficultySelector.classList.toggle('hidden', mode === 'pvp');
+      
+      // Show player names modal for PvP mode
+      if (mode === 'pvp') {
+        showPlayerNamesModal();
+      } else {
+        // Reset to default names for computer mode
+        playerNames.white = "Player";
+        playerNames.black = "Computer";
+        updateTurnDisplay();
+      }
+      
+      if (!gameOver) {
+        resetGame();
+      }
+    }
+
+    // Player names modal functionality
+    function showPlayerNamesModal() {
+      // Set current values
+      whitePlayerNameInput.value = playerNames.white;
+      blackPlayerNameInput.value = playerNames.black;
+      
+      // Show the modal
+      playerNamesModal.style.display = 'flex';
+    }
+
+    function hidePlayerNamesModal() {
+      playerNamesModal.style.display = 'none';
+    }
+
+    function savePlayerNames() {
+      const whiteName = whitePlayerNameInput.value.trim() || "Player 1";
+      const blackName = blackPlayerNameInput.value.trim() || "Player 2";
+      
+      playerNames.white = whiteName;
+      playerNames.black = blackName;
+      
+      updateTurnDisplay();
+      hidePlayerNamesModal();
+      
+      // Reset the game with new player names
+      resetGame();
+    }
+
+    function updateTurnDisplay() {
+      if (gameMode === 'pvp') {
+        turnDisplay.textContent = turn === "white" ? playerNames.white : playerNames.black;
+      } else {
+        turnDisplay.textContent = turn === "white" ? "Player" : "Computer";
+      }
+      turnDisplay.style.color = turn === "white" ? "#fff" : "#00aaff";
+    }
+
+    // Event listeners for player names modal
+    savePlayerNamesBtn.addEventListener('click', savePlayerNames);
+    
+    cancelPlayerNamesBtn.addEventListener('click', () => {
+      // If canceling from initial setup, default to PvP mode
+      if (gameMode === 'pvp') {
+        hidePlayerNamesModal();
+        // Keep the current player names
+        updateTurnDisplay();
+      }
+    });
+
+    // Allow pressing Enter to save names
+    whitePlayerNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        savePlayerNames();
+      }
+    });
+    
+    blackPlayerNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        savePlayerNames();
+      }
+    });
+
+    function showGameOverMessage(winner) {
+      const boardContainer = document.querySelector('.board-container');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'game-over-message';
+      
+      let winnerName;
+      if (gameMode === 'pvp') {
+        winnerName = winner === 'White' ? playerNames.white : playerNames.black;
+      } else {
+        winnerName = winner === 'White' ? 'Player' : 'Computer';
+      }
+      
+      messageDiv.innerHTML = `
+        <h2>${winnerName} WINS!</h2>
+        <p>${winner === 'White' ? '⚪' : '⚫'} ${winnerName} has won the game!</p>
+        <button class="restart-btn" onclick="resetGame()">Play Again</button>
+      `;
+      boardContainer.appendChild(messageDiv);
+      board.classList.add('game-over');
+    }
+
+    function resetGame() {
+      board.innerHTML = '';
+      document.querySelector('.game-over-message')?.remove();
+      board.classList.remove('game-over');
+      
+      selectedSquare = null;
+      turn = "white";
+      gameOver = false;
+      pawnFirstMove = {};
+      capturedPieces = { white: [], black: [] };
+      pendingPromotion = null;
+      moveHistory = [];
+      
+      buildBoard();
+      
+      updateKillDisplay();
+      updateGameStatus();
+      updateTurnDisplay();
+      updateUndoButtonState();
+      
+      // Reset 15-second timer
+      resetFifteenSecondTimer();
+      
+      promotionModal.style.display = 'none';
+      
+      // Play game start sound on reset as well
+      if (soundEnabled) {
+        try {
+          gameStartSound.currentTime = 0;
+          gameStartSound.play().catch(e => {
+            console.log("Game start sound could not play:", e);
+          });
+        } catch (error) {
+          console.log("Sound play error:", error);
+        }
+      }
+    }
+
+    // Initialize pawn first move tracking
+    function initializePawnFirstMove() {
+      for (let i = 0; i < 8; i++) {
+        pawnFirstMove[`1-${i}`] = true;
+        pawnFirstMove[`6-${i}`] = true;
+      }
+    }
+
+    function getPieceColor(symbol) {
+      if ("♔♕♖♗♘♙".includes(symbol)) return "white";
+      if ("♚♛♜♝♞♟".includes(symbol)) return "black";
+      return null;
+    }
+
+    function getPieceType(symbol) {
+      if (symbol === "♙" || symbol === "♟") return "pawn";
+      if (symbol === "♖" || symbol === "♜") return "rook";
+      if (symbol === "♘" || symbol === "♞") return "knight";
+      if (symbol === "♗" || symbol === "♝") return "bishop";
+      if (symbol === "♕" || symbol === "♛") return "queen";
+      if (symbol === "♔" || symbol === "♚") return "king";
+      return null;
+    }
+
+    function getPieceValue(piece) {
+      const pieceType = getPieceType(piece);
+      return pieceValues[pieceType] || 0;
+    }
+
+    function addCapturedPiece(piece, capturingColor) {
+      if (piece === pieces.white.king || piece === pieces.black.king) {
+        return;
+      }
+      
+      capturedPieces[capturingColor].push(piece);
+      updateKillDisplay();
+    }
+
+    function updateKillDisplay() {
+      whiteKills.innerHTML = '';
+      blackKills.innerHTML = '';
+      
+      capturedPieces.white.forEach((piece, index) => {
+        const pieceEl = document.createElement('span');
+        pieceEl.textContent = piece;
+        pieceEl.classList.add('kill-piece');
+        
+        if (index === capturedPieces.white.length - 1 && capturedPieces.white.length > 0) {
+          pieceEl.classList.add('new-capture');
+        }
+        
+        whiteKills.appendChild(pieceEl);
+      });
+      
+      capturedPieces.black.forEach((piece, index) => {
+        const pieceEl = document.createElement('span');
+        pieceEl.textContent = piece;
+        pieceEl.classList.add('kill-piece');
+        
+        if (index === capturedPieces.black.length - 1 && capturedPieces.black.length > 0) {
+          pieceEl.classList.add('new-capture');
+        }
+        
+        blackKills.appendChild(pieceEl);
+      });
+    }
+
+    // Check if a pawn has reached the promotion row
+    function checkPromotion(piece, row) {
+      if (piece === pieces.white.pawn && row === 0) return true;
+      if (piece === pieces.black.pawn && row === 7) return true;
+      return false;
+    }
+
+    // Show promotion modal
+    function showPromotionModal(color, square) {
+      pendingPromotion = { color, square };
+      
+      promotionTitle.textContent = `${color.charAt(0).toUpperCase() + color.slice(1)} - Choose Promotion`;
+      promotionPieces.innerHTML = '';
+      
+      const promotionOptions = [
+        { symbol: color === 'white' ? pieces.white.queen : pieces.black.queen, name: 'Queen' },
+        { symbol: color === 'white' ? pieces.white.rook : pieces.black.rook, name: 'Rook' },
+        { symbol: color === 'white' ? pieces.white.bishop : pieces.black.bishop, name: 'Bishop' },
+        { symbol: color === 'white' ? pieces.white.knight : pieces.black.knight, name: 'Knight' }
+      ];
+      
+      promotionOptions.forEach(option => {
+        const pieceEl = document.createElement('div');
+        pieceEl.className = `promotion-piece ${color}`;
+        pieceEl.innerHTML = option.symbol;
+        pieceEl.title = option.name;
+        pieceEl.addEventListener('click', () => {
+          playSelectSound();
+          completePromotion(option.symbol);
+        });
+        promotionPieces.appendChild(pieceEl);
+      });
+      
+      promotionModal.style.display = 'flex';
+      playPromotionSound();
+    }
+
+    // Complete the promotion process
+    function completePromotion(pieceSymbol) {
+      if (!pendingPromotion) return;
+      
+      const { color, square } = pendingPromotion;
+      
+      square.innerHTML = '';
+      const newPiece = document.createElement('span');
+      newPiece.textContent = pieceSymbol;
+      newPiece.classList.add(color === 'white' ? "piece-white" : "piece-black");
+      square.appendChild(newPiece);
+      
+      promotionModal.style.display = 'none';
+      pendingPromotion = null;
+      
+      playMoveSound();
+      
+      turn = turn === "white" ? "black" : "white";
+      updateTurnDisplay();
+      
+      // Reset 15-second timer after promotion
+      resetFifteenSecondTimer();
+      
+      updateGameStatus();
+      updateUndoButtonState();
+      
+      if (gameMode === "pvc" && turn === "black" && !gameOver) {
+        setTimeout(makeComputerMove, 800);
+      }
+    }
+
+    // Build board
+    function buildBoard() {
+      const squares = [];
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const square = document.createElement("div");
+          square.classList.add("square", (i + j) % 2 === 0 ? "sq-light" : "sq-dark");
+          square.dataset.row = i;
+          square.dataset.col = j;
+
+          const piece = startingBoard[i][j];
+          if (piece) {
+            const span = document.createElement("span");
+            span.textContent = piece;
+            span.classList.add(getPieceColor(piece) === "white" ? "piece-white" : "piece-black");
+            square.appendChild(span);
+          }
+
+          board.appendChild(square);
+          squares.push(square);
+        }
+      }
+      initializePawnFirstMove();
+    }
+
+    buildBoard();
+
+    function getSquare(row, col) {
+      return document.querySelector(`.square[data-row="${row}"][data-col="${col}"]`);
+    }
+
+    function getPieceAt(row, col) {
+      const square = getSquare(row, col);
+      const pieceEl = square ? square.querySelector("span") : null;
+      return pieceEl ? pieceEl.textContent : "";
+    }
+
+    // Enhanced Computer AI with difficulty levels
+    function makeComputerMove() {
+      if (gameOver || turn !== "black" || pendingPromotion) return;
+      
+      const possibleMoves = [];
+      const isInCheck = isKingInCheck("black");
+      
+      for (let fromRow = 0; fromRow < 8; fromRow++) {
+        for (let fromCol = 0; fromCol < 8; fromCol++) {
+          const piece = getPieceAt(fromRow, fromCol);
+          if (piece && getPieceColor(piece) === "black") {
+            for (let toRow = 0; toRow < 8; toRow++) {
+              for (let toCol = 0; toCol < 8; toCol++) {
+                if (fromRow === toRow && fromCol === toCol) continue;
+                
+                const pieceType = getPieceType(piece);
+                let isValid = false;
+                let moveType = "move";
+                
+                if (pieceType === "pawn") {
+                  const moveResult = isValidPawnMove(fromRow, fromCol, toRow, toCol, "black");
+                  isValid = moveResult.valid;
+                  moveType = moveResult.type;
+                } else if (pieceType === "knight") {
+                  const moveResult = isValidKnightMove(fromRow, fromCol, toRow, toCol, "black");
+                  isValid = moveResult.valid;
+                  moveType = moveResult.type;
+                } else if (pieceType === "bishop") {
+                  const moveResult = isValidBishopMove(fromRow, fromCol, toRow, toCol, "black");
+                  isValid = moveResult.valid;
+                  moveType = moveResult.type;
+                } else if (pieceType === "rook") {
+                  const moveResult = isValidRookMove(fromRow, fromCol, toRow, toCol, "black");
+                  isValid = moveResult.valid;
+                  moveType = moveResult.type;
+                } else if (pieceType === "queen") {
+                  const moveResult = isValidQueenMove(fromRow, fromCol, toRow, toCol, "black");
+                  isValid = moveResult.valid;
+                  moveType = moveResult.type;
+                } else if (pieceType === "king") {
+                  const rowDiff = Math.abs(toRow - fromRow);
+                  const colDiff = Math.abs(toCol - fromCol);
+                  if (rowDiff <= 1 && colDiff <= 1) {
+                    isValid = true;
+                    moveType = getPieceAt(toRow, toCol) ? "capture" : "move";
+                  }
+                }
+                
+                const targetPiece = getPieceAt(toRow, toCol);
+                if (isValid && targetPiece && getPieceColor(targetPiece) === "black") {
+                  isValid = false;
+                }
+                
+                // If in check, only allow moves that save the king
+                if (isValid && isInCheck) {
+                  if (!moveGetsOutOfCheck(fromRow, fromCol, toRow, toCol, "black")) {
+                    isValid = false;
+                  }
+                }
+                
+                if (isValid) {
+                  let score = 0;
+                  
+                  // Difficulty-based scoring
+                  if (difficulty === "easy") {
+                    // Easy: Random moves with basic captures
+                    score = Math.random() * 100;
+                    if (moveType === "capture") score += getPieceValue(targetPiece);
+                    if (isInCheck) score += 50;
+                  }
+                  else if (difficulty === "medium") {
+                    // Medium: Balanced strategy
+                    if (moveType === "capture" && targetPiece && getPieceColor(targetPiece) === "white") {
+                      score = getPieceValue(targetPiece) * 1.2;
+                    }
+                    if (isInCheck) score += 100;
+                    if (pieceType === "king" && isInCheck) score += 150;
+                    if (checkPromotion(piece, toRow)) score += 80;
+                    score += Math.random() * 20;
+                  }
+                  else if (difficulty === "hard") {
+                    // Hard: Advanced strategy
+                    if (moveType === "capture" && targetPiece && getPieceColor(targetPiece) === "white") {
+                      score = getPieceValue(targetPiece) * 1.5;
+                      if (getPieceValue(piece) < getPieceValue(targetPiece)) {
+                        score += 40;
+                      }
+                    }
+                    if (isInCheck) score += 200;
+                    if (pieceType === "king" && isInCheck) score += 300;
+                    if (checkPromotion(piece, toRow)) score += 120;
+                    if (wouldPutInCheck(toRow, toCol, "white")) score += 80;
+                    
+                    // Position evaluation
+                    if (toRow >= 3 && toRow <= 4 && toCol >= 3 && toCol <= 4) {
+                      score += 10;
+                    }
+                    if (pieceType === "pawn" && toRow > fromRow) {
+                      score += 5;
+                    }
+                    
+                    // King safety
+                    if (pieceType === "king" && isSquareUnderAttack(toRow, toCol, "black")) {
+                      score -= 100;
+                    }
+                  }
+                  
+                  possibleMoves.push({
+                    fromRow, fromCol, toRow, toCol, piece, score
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      if (possibleMoves.length > 0) {
+        possibleMoves.sort((a, b) => b.score - a.score);
+        
+        let topMovesCount;
+        if (difficulty === "easy") {
+          topMovesCount = Math.min(8, possibleMoves.length);
+        } else if (difficulty === "medium") {
+          topMovesCount = Math.min(4, possibleMoves.length);
+        } else {
+          topMovesCount = Math.min(2, possibleMoves.length);
+        }
+        
+        const topMoves = possibleMoves.slice(0, topMovesCount);
+        const randomMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+        
+        setTimeout(() => {
+          const { fromRow, fromCol, toRow, toCol, piece } = randomMove;
+          const targetPiece = getPieceAt(toRow, toCol);
+          
+          // Save move to history before executing
+          saveMoveToHistory(fromRow, fromCol, toRow, toCol, piece, targetPiece);
+          
+          if (targetPiece && getPieceColor(targetPiece) === "white") {
+            addCapturedPiece(targetPiece, "black");
+            
+            // Play specific capture sound based on piece type
+            playPieceCaptureSound(piece);
+            
+            if (targetPiece === pieces.white.king) {
+              checkKingCapture(targetPiece, "black");
+            }
+          } else {
+            playMoveSound();
+          }
+          
+          const fromSquare = getSquare(fromRow, fromCol);
+          const toSquare = getSquare(toRow, toCol);
+          
+          fromSquare.innerHTML = "";
+          if (targetPiece && getPieceColor(targetPiece) === "white") toSquare.innerHTML = "";
+          const moved = document.createElement("span");
+          moved.textContent = piece;
+          moved.classList.add("piece-black");
+          toSquare.appendChild(moved);
+          
+          if (getPieceType(piece) === "pawn" && pawnFirstMove[`${fromRow}-${fromCol}`]) {
+            delete pawnFirstMove[`${fromRow}-${fromCol}`];
+          }
+          
+          if (checkPromotion(piece, toRow)) {
+            showPromotionModal("black", toSquare);
+          } else {
+            turn = "white";
+            updateTurnDisplay();
+            
+            // Reset 15-second timer after computer move
+            resetFifteenSecondTimer();
+            
+            updateGameStatus();
+            updateUndoButtonState();
+          }
+        }, difficulty === "hard" ? 1200 : 800);
+      }
+    }
+
+    // NEW: Play specific capture sound based on piece type
+    function playPieceCaptureSound(piece) {
+      const pieceType = getPieceType(piece);
+      
+      switch(pieceType) {
+        case "pawn":
+          playPawnCaptureSound();
+          break;
+        case "rook":
+          playRookCaptureSound();
+          break;
+        case "knight":
+          playKnightCaptureSound();
+          break;
+        case "bishop":
+          playBishopCaptureSound();
+          break;
+        case "queen":
+          playQueenCaptureSound();
+          break;
+        default:
+          playCaptureSound();
+          break;
+      }
+    }
+
+    // Save move to history
+    function saveMoveToHistory(fromRow, fromCol, toRow, toCol, piece, capturedPiece) {
+      moveHistory.push({
+        fromRow,
+        fromCol,
+        toRow,
+        toCol,
+        piece,
+        capturedPiece,
+        pawnFirstMoveState: { ...pawnFirstMove },
+        capturedPiecesState: {
+          white: [...capturedPieces.white],
+          black: [...capturedPieces.black]
+        }
+      });
+    }
+
+    // Check if a move would put the opponent in check
+    function wouldPutInCheck(row, col, opponentColor) {
+      const kingPos = findKingPosition(opponentColor);
+      if (!kingPos) return false;
+      
+      return isSquareUnderAttackByPiece(kingPos.row, kingPos.col, row, col, getPieceType(getPieceAt(row, col)), getPieceColor(getPieceAt(row, col)));
+    }
+
+    // Check if a specific piece is attacking a square
+    function isSquareUnderAttackByPiece(targetRow, targetCol, pieceRow, pieceCol, pieceType, pieceColor) {
+      if (pieceType === "pawn") {
+        const direction = pieceColor === "white" ? -1 : 1;
+        return (Math.abs(pieceCol - targetCol) === 1 && pieceRow + direction === targetRow);
+      } else if (pieceType === "knight") {
+        const rowDiff = Math.abs(pieceRow - targetRow);
+        const colDiff = Math.abs(pieceCol - targetCol);
+        return (rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2);
+      } else if (pieceType === "bishop") {
+        const rowDiff = Math.abs(pieceRow - targetRow);
+        const colDiff = Math.abs(pieceCol - targetCol);
+        if (rowDiff !== colDiff) return false;
+        
+        const rowDirection = targetRow > pieceRow ? 1 : -1;
+        const colDirection = targetCol > pieceCol ? 1 : -1;
+        
+        for (let i = 1; i < rowDiff; i++) {
+          const checkRow = pieceRow + i * rowDirection;
+          const checkCol = pieceCol + i * colDirection;
+          if (getPieceAt(checkRow, checkCol)) return false;
+        }
+        return true;
+      } else if (pieceType === "rook") {
+        const rowDiff = Math.abs(pieceRow - targetRow);
+        const colDiff = Math.abs(pieceCol - targetCol);
+        if (rowDiff !== 0 && colDiff !== 0) return false;
+        
+        if (rowDiff === 0) {
+          const direction = targetCol > pieceCol ? 1 : -1;
+          for (let i = 1; i < colDiff; i++) {
+            const checkCol = pieceCol + i * direction;
+            if (getPieceAt(pieceRow, checkCol)) return false;
+          }
+        } else {
+          const direction = targetRow > pieceRow ? 1 : -1;
+          for (let i = 1; i < rowDiff; i++) {
+            const checkRow = pieceRow + i * direction;
+            if (getPieceAt(checkRow, pieceCol)) return false;
+          }
+        }
+        return true;
+      } else if (pieceType === "queen") {
+        const rowDiff = Math.abs(pieceRow - targetRow);
+        const colDiff = Math.abs(pieceCol - targetCol);
+        if (rowDiff !== 0 && colDiff !== 0 && rowDiff !== colDiff) return false;
+        
+        if (rowDiff === 0) {
+          const direction = targetCol > pieceCol ? 1 : -1;
+          for (let i = 1; i < colDiff; i++) {
+            const checkCol = pieceCol + i * direction;
+            if (getPieceAt(pieceRow, checkCol)) return false;
+          }
+        } else if (colDiff === 0) {
+          const direction = targetRow > pieceRow ? 1 : -1;
+          for (let i = 1; i < rowDiff; i++) {
+            const checkRow = pieceRow + i * direction;
+            if (getPieceAt(checkRow, pieceCol)) return false;
+          }
+        } else {
+          const rowDirection = targetRow > pieceRow ? 1 : -1;
+          const colDirection = targetCol > pieceCol ? 1 : -1;
+          for (let i = 1; i < rowDiff; i++) {
+            const checkRow = pieceRow + i * rowDirection;
+            const checkCol = pieceCol + i * colDirection;
+            if (getPieceAt(checkRow, checkCol)) return false;
+          }
+        }
+        return true;
+      } else if (pieceType === "king") {
+        const rowDiff = Math.abs(pieceRow - targetRow);
+        const colDiff = Math.abs(pieceCol - targetCol);
+        return rowDiff <= 1 && colDiff <= 1;
+      }
+      return false;
+    }
+
+    // All move validation functions
+    function isValidPawnMove(fromRow, fromCol, toRow, toCol, pieceColor) {
+      const direction = pieceColor === "white" ? -1 : 1;
+      const isFirstMove = pawnFirstMove[`${fromRow}-${fromCol}`];
+      
+      if (toCol === fromCol && toRow === fromRow + direction && !getPieceAt(toRow, toCol)) {
+        return { valid: true, type: "move" };
+      }
+      
+      if (isFirstMove && toCol === fromCol && toRow === fromRow + 2 * direction && 
+          !getPieceAt(toRow, toCol) && !getPieceAt(fromRow + direction, fromCol)) {
+        return { valid: true, type: "move" };
+      }
+      
+      if (Math.abs(toCol - fromCol) === 1 && toRow === fromRow + direction) {
+        const targetPiece = getPieceAt(toRow, toCol);
+        if (targetPiece && getPieceColor(targetPiece) !== pieceColor) {
+          return { valid: true, type: "capture" };
+        }
+      }
+      
+      return { valid: false };
+    }
+
+    function isValidKnightMove(fromRow, fromCol, toRow, toCol, pieceColor) {
+      const rowDiff = Math.abs(toRow - fromRow);
+      const colDiff = Math.abs(toCol - fromCol);
+      
+      if (!((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2))) {
+        return { valid: false };
+      }
+      
+      const targetPiece = getPieceAt(toRow, toCol);
+      if (!targetPiece) {
+        return { valid: true, type: "move" };
+      } else if (getPieceColor(targetPiece) !== pieceColor) {
+        return { valid: true, type: "capture" };
+      }
+      
+      return { valid: false };
+    }
+
+    function isValidBishopMove(fromRow, fromCol, toRow, toCol, pieceColor) {
+      const rowDiff = Math.abs(toRow - fromRow);
+      const colDiff = Math.abs(toCol - fromCol);
+      
+      if (rowDiff !== colDiff) {
+        return { valid: false };
+      }
+      
+      const rowDirection = toRow > fromRow ? 1 : -1;
+      const colDirection = toCol > fromCol ? 1 : -1;
+      
+      for (let i = 1; i < rowDiff; i++) {
+        const checkRow = fromRow + i * rowDirection;
+        const checkCol = fromCol + i * colDirection;
+        if (getPieceAt(checkRow, checkCol)) {
+          return { valid: false };
+        }
+      }
+      
+      const targetPiece = getPieceAt(toRow, toCol);
+      if (!targetPiece) {
+        return { valid: true, type: "move" };
+      } else if (getPieceColor(targetPiece) !== pieceColor) {
+        return { valid: true, type: "capture" };
+      }
+      
+      return { valid: false };
+    }
+
+    function isValidRookMove(fromRow, fromCol, toRow, toCol, pieceColor) {
+      const rowDiff = Math.abs(toRow - fromRow);
+      const colDiff = Math.abs(toCol - fromCol);
+      
+      if (rowDiff !== 0 && colDiff !== 0) {
+        return { valid: false };
+      }
+      
+      if (rowDiff === 0) {
+        const direction = toCol > fromCol ? 1 : -1;
+        for (let i = 1; i < colDiff; i++) {
+          const checkCol = fromCol + i * direction;
+          if (getPieceAt(fromRow, checkCol)) {
+            return { valid: false };
+          }
+        }
+      } else {
+        const direction = toRow > fromRow ? 1 : -1;
+        for (let i = 1; i < rowDiff; i++) {
+          const checkRow = fromRow + i * direction;
+          if (getPieceAt(checkRow, fromCol)) {
+            return { valid: false };
+          }
+        }
+      }
+      
+      const targetPiece = getPieceAt(toRow, toCol);
+      if (!targetPiece) {
+        return { valid: true, type: "move" };
+      } else if (getPieceColor(targetPiece) !== pieceColor) {
+        return { valid: true, type: "capture" };
+      }
+      
+      return { valid: false };
+    }
+
+    function isValidQueenMove(fromRow, fromCol, toRow, toCol, pieceColor) {
+      const rowDiff = Math.abs(toRow - fromRow);
+      const colDiff = Math.abs(toCol - fromCol);
+      
+      if (rowDiff !== 0 && colDiff !== 0 && rowDiff !== colDiff) {
+        return { valid: false };
+      }
+      
+      if (rowDiff === 0) {
+        const direction = toCol > fromCol ? 1 : -1;
+        for (let i = 1; i < colDiff; i++) {
+          const checkCol = fromCol + i * direction;
+          if (getPieceAt(fromRow, checkCol)) {
+            return { valid: false };
+          }
+        }
+      } else if (colDiff === 0) {
+        const direction = toRow > fromRow ? 1 : -1;
+        for (let i = 1; i < rowDiff; i++) {
+          const checkRow = fromRow + i * direction;
+          if (getPieceAt(checkRow, fromCol)) {
+            return { valid: false };
+          }
+        }
+      } else {
+        const rowDirection = toRow > fromRow ? 1 : -1;
+        const colDirection = toCol > fromCol ? 1 : -1;
+        
+        for (let i = 1; i < rowDiff; i++) {
+          const checkRow = fromRow + i * rowDirection;
+          const checkCol = fromCol + i * colDirection;
+          if (getPieceAt(checkRow, checkCol)) {
+            return { valid: false };
+          }
+        }
+      }
+      
+      const targetPiece = getPieceAt(toRow, toCol);
+      if (!targetPiece) {
+        return { valid: true, type: "move" };
+      } else if (getPieceColor(targetPiece) !== pieceColor) {
+        return { valid: true, type: "capture" };
+      }
+      
+      return { valid: false };
+    }
+
+    function isSquareUnderAttack(row, col, defendingColor) {
+      const attackingColor = defendingColor === "white" ? "black" : "white";
+      
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          const piece = getPieceAt(i, j);
+          if (piece && getPieceColor(piece) === attackingColor) {
+            const pieceType = getPieceType(piece);
+            
+            if (pieceType === "pawn") {
+              const direction = attackingColor === "white" ? -1 : 1;
+              if (Math.abs(j - col) === 1 && i + direction === row) {
+                return true;
+              }
+            } else if (pieceType === "knight") {
+              const rowDiff = Math.abs(i - row);
+              const colDiff = Math.abs(j - col);
+              if ((rowDiff === 2 && colDiff === 1) || (rowDiff === 1 && colDiff === 2)) {
+                return true;
+              }
+            } else if (pieceType === "bishop") {
+              const rowDiff = Math.abs(i - row);
+              const colDiff = Math.abs(j - col);
+              if (rowDiff === colDiff) {
+                const rowDirection = row > i ? 1 : -1;
+                const colDirection = col > j ? 1 : -1;
+                let pathClear = true;
+                
+                for (let k = 1; k < rowDiff; k++) {
+                  const checkRow = i + k * rowDirection;
+                  const checkCol = j + k * colDirection;
+                  if (getPieceAt(checkRow, checkCol)) {
+                    pathClear = false;
+                    break;
+                  }
+                }
+                
+                if (pathClear) return true;
+              }
+            } else if (pieceType === "rook") {
+              const rowDiff = Math.abs(i - row);
+              const colDiff = Math.abs(j - col);
+              if (rowDiff === 0 || colDiff === 0) {
+                let pathClear = true;
+                
+                if (rowDiff === 0) {
+                  const direction = col > j ? 1 : -1;
+                  for (let k = 1; k < colDiff; k++) {
+                    const checkCol = j + k * direction;
+                    if (getPieceAt(i, checkCol)) {
+                      pathClear = false;
+                      break;
+                    }
+                  }
+                } else {
+                  const direction = row > i ? 1 : -1;
+                  for (let k = 1; k < rowDiff; k++) {
+                    const checkRow = i + k * direction;
+                    if (getPieceAt(checkRow, j)) {
+                      pathClear = false;
+                      break;
+                    }
+                  }
+                }
+                
+                if (pathClear) return true;
+              }
+            } else if (pieceType === "queen") {
+              const rowDiff = Math.abs(i - row);
+              const colDiff = Math.abs(j - col);
+              if (rowDiff === 0 || colDiff === 0 || rowDiff === colDiff) {
+                let pathClear = true;
+                
+                if (rowDiff === 0) {
+                  const direction = col > j ? 1 : -1;
+                  for (let k = 1; k < colDiff; k++) {
+                    const checkCol = j + k * direction;
+                    if (getPieceAt(i, checkCol)) {
+                      pathClear = false;
+                      break;
+                    }
+                  }
+                } else if (colDiff === 0) {
+                  const direction = row > i ? 1 : -1;
+                  for (let k = 1; k < rowDiff; k++) {
+                    const checkRow = i + k * direction;
+                    if (getPieceAt(checkRow, j)) {
+                      pathClear = false;
+                      break;
+                    }
+                  }
+                } else {
+                  const rowDirection = row > i ? 1 : -1;
+                  const colDirection = col > j ? 1 : -1;
+                  for (let k = 1; k < rowDiff; k++) {
+                    const checkRow = i + k * rowDirection;
+                    const checkCol = j + k * colDirection;
+                    if (getPieceAt(checkRow, checkCol)) {
+                      pathClear = false;
+                      break;
+                    }
+                  }
+                }
+                
+                if (pathClear) return true;
+              }
+            } else if (pieceType === "king") {
+              const rowDiff = Math.abs(i - row);
+              const colDiff = Math.abs(j - col);
+              if (rowDiff <= 1 && colDiff <= 1) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+      
+      return false;
+    }
+
+    function findKingPosition(color) {
+      const kingSymbol = color === "white" ? pieces.white.king : pieces.black.king;
+      
+      for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+          if (getPieceAt(i, j) === kingSymbol) {
+            return { row: i, col: j };
+          }
+        }
+      }
+      return null;
+    }
+
+    function isKingInCheck(color) {
+      const kingPos = findKingPosition(color);
+      if (!kingPos) return false;
+      
+      return isSquareUnderAttack(kingPos.row, kingPos.col, color);
+    }
+
+    // CRITICAL FIX: Check if a move gets the king out of check
+    function moveGetsOutOfCheck(fromRow, fromCol, toRow, toCol, color) {
+      // Store original state
+      const originalFromPiece = getPieceAt(fromRow, fromCol);
+      const originalToPiece = getPieceAt(toRow, toCol);
+      
+      // Temporarily make the move
+      const fromSquare = getSquare(fromRow, fromCol);
+      const toSquare = getSquare(toRow, toCol);
+      
+      // Remove piece from original position
+      fromSquare.innerHTML = "";
+      
+      // Place piece in new position
+      toSquare.innerHTML = "";
+      const tempPiece = document.createElement("span");
+      tempPiece.textContent = originalFromPiece;
+      tempPiece.classList.add(color === "white" ? "piece-white" : "piece-black");
+      toSquare.appendChild(tempPiece);
+      
+      // Check if king is still in check
+      const stillInCheck = isKingInCheck(color);
+      
+      // Restore original state
+      fromSquare.innerHTML = "";
+      const fromPiece = document.createElement("span");
+      fromPiece.textContent = originalFromPiece;
+      fromPiece.classList.add(color === "white" ? "piece-white" : "piece-black");
+      fromSquare.appendChild(fromPiece);
+      
+      toSquare.innerHTML = "";
+      if (originalToPiece) {
+        const toPiece = document.createElement("span");
+        toPiece.textContent = originalToPiece;
+        toPiece.classList.add(getPieceColor(originalToPiece) === "white" ? "piece-white" : "piece-black");
+        toSquare.appendChild(toPiece);
+      }
+      
+      return !stillInCheck;
+    }
+
+    function hasAnyValidMove(color) {
+      for (let fromRow = 0; fromRow < 8; fromRow++) {
+        for (let fromCol = 0; fromCol < 8; fromCol++) {
+          const piece = getPieceAt(fromRow, fromCol);
+          if (piece && getPieceColor(piece) === color) {
+            for (let toRow = 0; toRow < 8; toRow++) {
+              for (let toCol = 0; toCol < 8; toCol++) {
+                if (fromRow === toRow && fromCol === toCol) continue;
+                
+                const pieceType = getPieceType(piece);
+                let isValid = false;
+                
+                if (pieceType === "pawn") {
+                  const moveResult = isValidPawnMove(fromRow, fromCol, toRow, toCol, color);
+                  isValid = moveResult.valid;
+                } else if (pieceType === "knight") {
+                  const moveResult = isValidKnightMove(fromRow, fromCol, toRow, toCol, color);
+                  isValid = moveResult.valid;
+                } else if (pieceType === "bishop") {
+                  const moveResult = isValidBishopMove(fromRow, fromCol, toRow, toCol, color);
+                  isValid = moveResult.valid;
+                } else if (pieceType === "rook") {
+                  const moveResult = isValidRookMove(fromRow, fromCol, toRow, toCol, color);
+                  isValid = moveResult.valid;
+                } else if (pieceType === "queen") {
+                  const moveResult = isValidQueenMove(fromRow, fromCol, toRow, toCol, color);
+                  isValid = moveResult.valid;
+                } else if (pieceType === "king") {
+                  const rowDiff = Math.abs(toRow - fromRow);
+                  const colDiff = Math.abs(toCol - fromCol);
+                  if (rowDiff <= 1 && colDiff <= 1) {
+                    isValid = true;
+                  }
+                }
+                
+                // Check if this move gets out of check (if in check)
+                if (isValid) {
+                  const targetPiece = getPieceAt(toRow, toCol);
+                  if (targetPiece && getPieceColor(targetPiece) === color) {
+                    isValid = false; // Can't capture own pieces
+                  } else if (isKingInCheck(color)) {
+                    // When in check, only allow moves that save the king
+                    if (moveGetsOutOfCheck(fromRow, fromCol, toRow, toCol, color)) {
+                      return true;
+                    }
+                  } else {
+                    // When not in check, any valid move is fine
+                    return true;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      
+      return false;
+    }
+
+    function checkKingCapture(targetPiece, selectedColor) {
+      if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+        const capturedKingColor = getPieceColor(targetPiece);
+        const winnerColor = capturedKingColor === "white" ? "Black" : "White";
+        
+        gameOver = true;
+        stopFifteenSecondTimer();
+        showGameOverMessage(winnerColor);
+        playGameOverSound();
+        return true;
+      }
+      return false;
+    }
+
+    function updateGameStatus() {
+      gameStatus.textContent = "";
+      gameStatus.className = "game-status";
+      
+      document.querySelectorAll('.king-in-check').forEach(el => {
+        el.classList.remove('king-in-check');
+      });
+      
+      if (gameOver) return;
+      
+      const currentKingColor = turn;
+      
+      if (isKingInCheck(currentKingColor)) {
+        const kingPos = findKingPosition(currentKingColor);
+        if (kingPos) {
+          const kingSquare = getSquare(kingPos.row, kingPos.col);
+          const kingPiece = kingSquare.querySelector('span');
+          kingPiece.classList.add('king-in-check');
+        }
+        
+        // Check for checkmate (king is in check and has no valid moves)
+        if (!hasAnyValidMove(currentKingColor)) {
+          const winnerColor = currentKingColor === "white" ? "Black" : "White";
+          gameStatus.textContent = "CHECKMATE!";
+          gameStatus.classList.add("checkmate-status");
+          gameOver = true;
+          stopFifteenSecondTimer();
+          showGameOverMessage(winnerColor);
+          playCheckmateSound();
+          return;
+        } else {
+          // Just check, not checkmate
+          gameStatus.textContent = "CHECK! - Save Your King!";
+          gameStatus.classList.add("check-status");
+          playCheckSound();
+        }
+      }
+    }
+
+    function showValidMoves(row, col, piece) {
+      document.querySelectorAll(".valid-move, .capture-move, .king-capture-move").forEach(el => {
+        el.classList.remove("valid-move", "capture-move", "king-capture-move");
+      });
+
+      const pieceType = getPieceType(piece);
+      const pieceColor = getPieceColor(piece);
+      const isInCheck = isKingInCheck(pieceColor);
+
+      if (pieceType === "pawn") {
+        const direction = pieceColor === "white" ? -1 : 1;
+        const isFirstMove = pawnFirstMove[`${row}-${col}`];
+        
+        if (row + direction >= 0 && row + direction < 8 && !getPieceAt(row + direction, col)) {
+          if (!isInCheck || moveGetsOutOfCheck(row, col, row + direction, col, pieceColor)) {
+            getSquare(row + direction, col).classList.add("valid-move");
+          }
+        }
+        
+        if (isFirstMove && row + 2 * direction >= 0 && row + 2 * direction < 8 && 
+            !getPieceAt(row + 2 * direction, col) && !getPieceAt(row + direction, col)) {
+          if (!isInCheck || moveGetsOutOfCheck(row, col, row + 2 * direction, col, pieceColor)) {
+            getSquare(row + 2 * direction, col).classList.add("valid-move");
+          }
+        }
+        
+        for (let offset of [-1, 1]) {
+          if (col + offset >= 0 && col + offset < 8 && row + direction >= 0 && row + direction < 8) {
+            const targetPiece = getPieceAt(row + direction, col + offset);
+            if (targetPiece) {
+              if (getPieceColor(targetPiece) !== pieceColor) {
+                if (!isInCheck || moveGetsOutOfCheck(row, col, row + direction, col + offset, pieceColor)) {
+                  if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+                    getSquare(row + direction, col + offset).classList.add("king-capture-move");
+                  } else {
+                    getSquare(row + direction, col + offset).classList.add("capture-move");
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else if (pieceType === "knight") {
+        const knightMoves = [
+          {row: -2, col: -1}, {row: -2, col: 1},
+          {row: -1, col: -2}, {row: -1, col: 2},
+          {row: 1, col: -2}, {row: 1, col: 2},
+          {row: 2, col: -1}, {row: 2, col: 1}
+        ];
+        
+        for (let move of knightMoves) {
+          const newRow = row + move.row;
+          const newCol = col + move.col;
+          
+          if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
+            const targetPiece = getPieceAt(newRow, newCol);
+            if (!targetPiece) {
+              if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                getSquare(newRow, newCol).classList.add("valid-move");
+              }
+            } else if (getPieceColor(targetPiece) !== pieceColor) {
+              if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+                  getSquare(newRow, newCol).classList.add("king-capture-move");
+                } else {
+                  getSquare(newRow, newCol).classList.add("capture-move");
+                }
+              }
+            }
+          }
+        }
+      } else if (pieceType === "bishop") {
+        const directions = [
+          {row: -1, col: -1}, {row: -1, col: 1},
+          {row: 1, col: -1}, {row: 1, col: 1}
+        ];
+        
+        for (let direction of directions) {
+          for (let distance = 1; distance < 8; distance++) {
+            const newRow = row + direction.row * distance;
+            const newCol = col + direction.col * distance;
+            
+            if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) {
+              break;
+            }
+            
+            const targetPiece = getPieceAt(newRow, newCol);
+            if (!targetPiece) {
+              if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                getSquare(newRow, newCol).classList.add("valid-move");
+              }
+            } else {
+              if (getPieceColor(targetPiece) !== pieceColor) {
+                if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                  if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+                    getSquare(newRow, newCol).classList.add("king-capture-move");
+                  } else {
+                    getSquare(newRow, newCol).classList.add("capture-move");
+                  }
+                }
+              }
+              break;
+            }
+          }
+        }
+      } else if (pieceType === "rook") {
+        const directions = [
+          {row: -1, col: 0}, {row: 1, col: 0},
+          {row: 0, col: -1}, {row: 0, col: 1}
+        ];
+        
+        for (let direction of directions) {
+          for (let distance = 1; distance < 8; distance++) {
+            const newRow = row + direction.row * distance;
+            const newCol = col + direction.col * distance;
+            
+            if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) {
+              break;
+            }
+            
+            const targetPiece = getPieceAt(newRow, newCol);
+            if (!targetPiece) {
+              if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                getSquare(newRow, newCol).classList.add("valid-move");
+              }
+            } else {
+              if (getPieceColor(targetPiece) !== pieceColor) {
+                if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                  if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+                    getSquare(newRow, newCol).classList.add("king-capture-move");
+                  } else {
+                    getSquare(newRow, newCol).classList.add("capture-move");
+                  }
+                }
+              }
+              break;
+            }
+          }
+        }
+      } else if (pieceType === "queen") {
+        const directions = [
+          {row: -1, col: 0}, {row: 1, col: 0},
+          {row: 0, col: -1}, {row: 0, col: 1},
+          {row: -1, col: -1}, {row: -1, col: 1},
+          {row: 1, col: -1}, {row: 1, col: 1}
+        ];
+        
+        for (let direction of directions) {
+          for (let distance = 1; distance < 8; distance++) {
+            const newRow = row + direction.row * distance;
+            const newCol = col + direction.col * distance;
+            
+            if (newRow < 0 || newRow >= 8 || newCol < 0 || newCol >= 8) {
+              break;
+            }
+            
+            const targetPiece = getPieceAt(newRow, newCol);
+            if (!targetPiece) {
+              if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                getSquare(newRow, newCol).classList.add("valid-move");
+              }
+            } else {
+              if (getPieceColor(targetPiece) !== pieceColor) {
+                if (!isInCheck || moveGetsOutOfCheck(row, col, newRow, newCol, pieceColor)) {
+                  if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+                    getSquare(newRow, newCol).classList.add("king-capture-move");
+                  } else {
+                    getSquare(newRow, newCol).classList.add("capture-move");
+                  }
+                }
+              }
+              break;
+            }
+          }
+        }
+      } else {
+        for (let i = 0; i < 8; i++) {
+          for (let j = 0; j < 8; j++) {
+            if (i === row && j === col) continue;
+            
+            const rowDiff = Math.abs(i - row);
+            const colDiff = Math.abs(j - col);
+            
+            if (rowDiff <= 1 && colDiff <= 1) {
+              const targetPiece = getPieceAt(i, j);
+              if (!targetPiece) {
+                if (!isInCheck || moveGetsOutOfCheck(row, col, i, j, pieceColor)) {
+                  getSquare(i, j).classList.add("valid-move");
+                }
+              } else if (getPieceColor(targetPiece) !== pieceColor) {
+                if (!isInCheck || moveGetsOutOfCheck(row, col, i, j, pieceColor)) {
+                  if (targetPiece === pieces.white.king || targetPiece === pieces.black.king) {
+                    getSquare(i, j).classList.add("king-capture-move");
+                  } else {
+                    getSquare(i, j).classList.add("capture-move");
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Handle moves
+    board.addEventListener("click", (e) => {
+      if (gameOver || pendingPromotion) return;
+      
+      if (gameMode === "pvc" && turn === "black") return;
+      
+      const target = e.target.closest(".square");
+      if (!target) return;
+
+      const row = parseInt(target.dataset.row);
+      const col = parseInt(target.dataset.col);
+      const pieceEl = target.querySelector("span");
+      const piece = pieceEl ? pieceEl.textContent : "";
+      const color = getPieceColor(piece);
+
+      // Check if king is in check
+      const isInCheck = isKingInCheck(turn);
+      
+      if (selectedSquare && (target.classList.contains("valid-move") || target.classList.contains("capture-move") || target.classList.contains("king-capture-move"))) {
+        const selectedRow = parseInt(selectedSquare.dataset.row);
+        const selectedCol = parseInt(selectedSquare.dataset.col);
+        const selectedPieceEl = selectedSquare.querySelector("span");
+        const selectedPiece = selectedPieceEl.textContent;
+        const selectedColor = getPieceColor(selectedPiece);
+        
+        // If in check, verify this move gets out of check
+        if (isInCheck && !moveGetsOutOfCheck(selectedRow, selectedCol, row, col, selectedColor)) {
+          playErrorSound();
+          return;
+        }
+        
+        const pieceType = getPieceType(selectedPiece);
+        let isValid = false;
+        let moveType = "move";
+        
+        if (pieceType === "pawn") {
+          const moveResult = isValidPawnMove(selectedRow, selectedCol, row, col, selectedColor);
+          isValid = moveResult.valid;
+          moveType = moveResult.type;
+        } else if (pieceType === "knight") {
+          const moveResult = isValidKnightMove(selectedRow, selectedCol, row, col, selectedColor);
+          isValid = moveResult.valid;
+          moveType = moveResult.type;
+        } else if (pieceType === "bishop") {
+          const moveResult = isValidBishopMove(selectedRow, selectedCol, row, col, selectedColor);
+          isValid = moveResult.valid;
+          moveType = moveResult.type;
+        } else if (pieceType === "rook") {
+          const moveResult = isValidRookMove(selectedRow, selectedCol, row, col, selectedColor);
+          isValid = moveResult.valid;
+          moveType = moveResult.type;
+        } else if (pieceType === "queen") {
+          const moveResult = isValidQueenMove(selectedRow, selectedCol, row, col, selectedColor);
+          isValid = moveResult.valid;
+          moveType = moveResult.type;
+        } else {
+          const rowDiff = Math.abs(row - selectedRow);
+          const colDiff = Math.abs(col - selectedCol);
+          
+          if (rowDiff <= 1 && colDiff <= 1) {
+            const targetPiece = getPieceAt(row, col);
+            isValid = true;
+            moveType = targetPiece ? "capture" : "move";
+          } else {
+            isValid = false;
+          }
+        }
+        
+        if (isValid) {
+          // Save move to history before executing
+          saveMoveToHistory(selectedRow, selectedCol, row, col, selectedPiece, piece);
+          
+          if (piece && moveType === "capture") {
+            addCapturedPiece(piece, selectedColor);
+            
+            // Play specific capture sound based on piece type
+            playPieceCaptureSound(selectedPiece);
+            
+            if (piece === pieces.white.king || piece === pieces.black.king) {
+              checkKingCapture(piece, selectedColor);
+            }
+          } else {
+            playMoveSound();
+          }
+          
+          selectedPieceEl.classList.remove("selected");
+          
+          selectedSquare.innerHTML = "";
+          if (pieceEl && moveType === "capture") target.innerHTML = "";
+          const moved = document.createElement("span");
+          moved.textContent = selectedPiece;
+          moved.classList.add(selectedColor === "white" ? "piece-white" : "piece-black");
+          target.appendChild(moved);
+          
+          if (pieceType === "pawn" && pawnFirstMove[`${selectedRow}-${selectedCol}`]) {
+            delete pawnFirstMove[`${selectedRow}-${selectedCol}`];
+          }
+          
+          document.querySelectorAll(".valid-move, .capture-move, .king-capture-move").forEach(el => {
+            el.classList.remove("valid-move", "capture-move", "king-capture-move");
+          });
+          
+          selectedSquare = null;
+          
+          if (checkPromotion(selectedPiece, row)) {
+            showPromotionModal(selectedColor, target);
+          } else {
+            if (!gameOver) {
+              turn = turn === "white" ? "black" : "white";
+              updateTurnDisplay();
+              
+              // Reset 15-second timer after move
+              resetFifteenSecondTimer();
+              
+              updateGameStatus();
+              updateUndoButtonState();
+              
+              if (gameMode === "pvc" && turn === "black" && !gameOver) {
+                setTimeout(makeComputerMove, 800);
+              }
+            }
+          }
+        } else {
+          playErrorSound();
+        }
+        return;
+      }
+
+      if (!selectedSquare) {
+        if (!piece || color !== turn) {
+          if (piece && color !== turn) {
+            playErrorSound();
+          }
+          return;
+        }
+        
+        selectedSquare = target;
+        pieceEl.classList.add("selected");
+        showValidMoves(row, col, piece);
+        playSelectSound();
+        return;
+      }
+
+      if (selectedSquare === target) {
+        selectedSquare.querySelector("span").classList.remove("selected");
+        document.querySelectorAll(".valid-move, .capture-move, .king-capture-move").forEach(el => {
+          el.classList.remove("valid-move", "capture-move", "king-capture-move");
+        });
+        selectedSquare = null;
+        return;
+      }
+
+      if (piece && color === turn) {
+        selectedSquare.querySelector("span").classList.remove("selected");
+        document.querySelectorAll(".valid-move, .capture-move, .king-capture-move").forEach(el => {
+          el.classList.remove("valid-move", "capture-move", "king-capture-move");
+        });
+        selectedSquare = target;
+        pieceEl.classList.add("selected");
+        showValidMoves(row, col, piece);
+        playSelectSound();
+        return;
+      }
+    });
+
+    updateGameStatus();
+    updateUndoButtonState();
+  </script>
+</body>
+</html>
