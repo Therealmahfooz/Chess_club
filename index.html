@@ -9,6 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
+    /* All existing CSS styles remain exactly the same */
     :root {
       --black-gradient: linear-gradient(145deg, #111, #000);
       --white-gradient: linear-gradient(145deg, #f9f9f9, #c0c0c0);
@@ -25,11 +26,35 @@
       --checkmate-color: #ff0000;
       --win-color: #00ff00;
       --button-color: #00aaff;
+      
+      /* Theme variables */
+      --theme-bg: radial-gradient(circle at center, #0a0a0a, #000);
+      --theme-text: #f0f0f0;
+      --board-border: #ccc;
+      --board-shadow: 0 12px 45px rgba(255, 255, 255, 0.05),
+                      inset 0 0 20px rgba(255, 255, 255, 0.05);
+      --kill-count-bg: rgba(255, 255, 255, 0.1);
+      --kill-count-border: rgba(255, 255, 255, 0.2);
+      --modal-bg: rgba(40, 40, 40, 0.95);
+      --modal-border: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Wooden Theme */
+    .theme-wooden {
+      --theme-bg: radial-gradient(circle at center, #d7ccc8, #a1887f);
+      --theme-text: #5d4037;
+      --board-border: #8d6e63;
+      --board-shadow: 0 12px 45px rgba(0, 0, 0, 0.2),
+                      inset 0 0 20px rgba(0, 0, 0, 0.1);
+      --kill-count-bg: rgba(141, 110, 99, 0.2);
+      --kill-count-border: rgba(141, 110, 99, 0.4);
+      --modal-bg: rgba(188, 170, 164, 0.95);
+      --modal-border: rgba(141, 110, 99, 0.5);
     }
 
     body {
-      background: radial-gradient(circle at center, #0a0a0a, #000);
-      color: #f0f0f0;
+      background: var(--theme-bg);
+      color: var(--theme-text);
       font-family: "Poppins", sans-serif;
       text-align: center;
       padding: 20px 10px;
@@ -38,6 +63,8 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: all 0.5s ease;
+      position: relative;
     }
 
     .game-wrapper {
@@ -48,6 +75,7 @@
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
+      position: relative;
     }
 
     h1 {
@@ -61,27 +89,166 @@
       background-clip: text;
     }
 
-    .game-controls {
+    .theme-wooden h1 {
+      background: linear-gradient(45deg, #5d4037, #8d6e63);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Settings Button */
+    .settings-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(0, 170, 255, 0.2);
+      border: 2px solid var(--button-color);
+      color: #fff;
       display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      justify-content: center;
       align-items: center;
-    }
-
-    .game-mode-selection {
-      margin-bottom: 0;
-    }
-
-    .mode-buttons {
-      display: flex;
-      gap: 15px;
       justify-content: center;
-      flex-wrap: wrap;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(0, 170, 255, 0.3);
     }
 
-    .mode-btn {
+    .theme-wooden .settings-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      box-shadow: 0 0 10px rgba(141, 110, 99, 0.3);
+    }
+
+    .settings-btn:hover {
+      background: rgba(0, 170, 255, 0.4);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .settings-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    /* Undo Button */
+    .undo-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255, 193, 7, 0.2);
+      border: 2px solid #ffc107;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+    }
+
+    .theme-wooden .undo-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      box-shadow: 0 0 10px rgba(141, 110, 99, 0.3);
+    }
+
+    .undo-btn:hover {
+      background: rgba(255, 193, 7, 0.4);
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+    }
+
+    .theme-wooden .undo-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    .undo-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .undo-btn:disabled:hover {
+      background: rgba(255, 193, 7, 0.2);
+      box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      background: var(--modal-bg);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--modal-border);
+      z-index: 10;
+      width: 300px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .theme-wooden .settings-panel {
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-panel.show {
+      display: block;
+    }
+
+    .settings-panel h3 {
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+      border-bottom: 2px solid var(--button-color);
+      padding-bottom: 10px;
+      color: #fff;
+    }
+
+    .theme-wooden .settings-panel h3 {
+      color: #5d4037;
+      border-bottom: 2px solid #8d6e63;
+    }
+
+    .settings-section {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .settings-section h4 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .theme-wooden .settings-section h4 {
+      color: #5d4037;
+    }
+
+    .settings-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mode-btn, .theme-btn, .settings-option-btn {
       background: rgba(0, 170, 255, 0.2);
       border: 2px solid var(--button-color);
       color: #fff;
@@ -93,15 +260,32 @@
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
     }
 
-    .mode-btn:hover {
+    .theme-wooden .mode-btn, .theme-wooden .theme-btn, .theme-wooden .settings-option-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      text-shadow: none;
+    }
+
+    .mode-btn:hover, .theme-btn:hover, .settings-option-btn:hover {
       background: rgba(0, 170, 255, 0.4);
       transform: scale(1.05);
       box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
     }
 
-    .mode-btn.active {
+    .theme-wooden .mode-btn:hover, .theme-wooden .theme-btn:hover, .theme-wooden .settings-option-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    .mode-btn.active, .settings-option-btn.active {
       background: var(--button-color);
       box-shadow: 0 0 20px rgba(0, 170, 255, 0.7);
+    }
+
+    .theme-wooden .mode-btn.active, .theme-wooden .settings-option-btn.active {
+      background: #8d6e63;
+      box-shadow: 0 0 20px rgba(141, 110, 99, 0.7);
     }
 
     .difficulty-selector {
@@ -112,6 +296,11 @@
       padding: 10px 15px;
       border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-wooden .difficulty-selector {
+      background: rgba(141, 110, 99, 0.2);
+      border: 1px solid rgba(141, 110, 99, 0.4);
     }
 
     .difficulty-selector.hidden {
@@ -129,13 +318,28 @@
       transition: all 0.3s ease;
     }
 
+    .theme-wooden .difficulty-btn {
+      background: rgba(141, 110, 99, 0.2);
+      border: 2px solid rgba(141, 110, 99, 0.4);
+      color: #5d4037;
+    }
+
     .difficulty-btn:hover {
       background: rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-wooden .difficulty-btn:hover {
+      background: rgba(141, 110, 99, 0.3);
     }
 
     .difficulty-btn.active {
       background: rgba(0, 170, 255, 0.4);
       border-color: var(--button-color);
+    }
+
+    .theme-wooden .difficulty-btn.active {
+      background: rgba(141, 110, 99, 0.5);
+      border-color: #8d6e63;
     }
 
     .sound-toggle {
@@ -152,14 +356,29 @@
       gap: 8px;
     }
 
+    .theme-wooden .sound-toggle {
+      background: rgba(141, 110, 99, 0.2);
+      border: 2px solid rgba(141, 110, 99, 0.4);
+      color: #5d4037;
+    }
+
     .sound-toggle:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: scale(1.05);
     }
 
+    .theme-wooden .sound-toggle:hover {
+      background: rgba(141, 110, 99, 0.3);
+    }
+
     .sound-toggle.active {
       background: rgba(0, 255, 0, 0.3);
       border-color: #00ff00;
+    }
+
+    .theme-wooden .sound-toggle.active {
+      background: rgba(76, 175, 80, 0.3);
+      border-color: #4caf50;
     }
 
     .game-status {
@@ -212,6 +431,10 @@
       text-shadow: 0 0 10px #fff;
     }
 
+    .theme-wooden .turn-indicator span {
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.5);
+    }
+
     .board-container {
       display: flex;
       justify-content: center;
@@ -227,10 +450,9 @@
       width: 90vw;
       max-width: 600px;
       aspect-ratio: 1 / 1;
-      border: 6px solid #ccc;
+      border: 6px solid var(--board-border);
       border-radius: 12px;
-      box-shadow: 0 12px 45px rgba(255, 255, 255, 0.05),
-                  inset 0 0 20px rgba(255, 255, 255, 0.05);
+      box-shadow: var(--board-shadow);
       position: relative;
       overflow: hidden;
       user-select: none;
@@ -257,6 +479,12 @@
       animation: popIn 0.6s ease-out;
     }
 
+    .theme-wooden .game-over-message {
+      background: rgba(93, 64, 55, 0.9);
+      border: 3px solid #ffd700;
+      box-shadow: 0 0 50px rgba(255, 215, 0, 0.5);
+    }
+
     @keyframes popIn {
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
       70% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
@@ -276,6 +504,10 @@
       color: #fff;
     }
 
+    .theme-wooden .game-over-message p {
+      color: #f5f5f5;
+    }
+
     .restart-btn {
       background: linear-gradient(45deg, #00aaff, #0077cc);
       border: none;
@@ -288,19 +520,28 @@
       box-shadow: 0 0 20px rgba(0, 170, 255, 0.5);
     }
 
+    .theme-wooden .restart-btn {
+      background: linear-gradient(45deg, #8d6e63, #6d4c41);
+      box-shadow: 0 0 20px rgba(141, 110, 99, 0.5);
+    }
+
     .restart-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 0 30px rgba(0, 170, 255, 0.7);
     }
 
+    .theme-wooden .restart-btn:hover {
+      box-shadow: 0 0 30px rgba(141, 110, 99, 0.7);
+    }
+
     .kill-count {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--kill-count-bg);
       border-radius: 12px;
       padding: 20px;
       width: 90%;
       max-width: 800px;
       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-      border: 2px solid rgba(255, 255, 255, 0.2);
+      border: 2px solid var(--kill-count-border);
       margin-top: 20px;
     }
 
@@ -310,6 +551,11 @@
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
       border-bottom: 2px solid rgba(255, 255, 255, 0.3);
       padding-bottom: 8px;
+    }
+
+    .theme-wooden .kill-count h3 {
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.3);
+      border-bottom: 2px solid rgba(93, 64, 55, 0.3);
     }
 
     .kill-sections {
@@ -329,6 +575,11 @@
       margin-bottom: 15px;
       color: #f0f0f0;
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+    }
+
+    .theme-wooden .kill-section h4 {
+      color: #5d4037;
+      text-shadow: 0 0 8px rgba(93, 64, 55, 0.2);
     }
 
     .kill-list {
@@ -366,6 +617,10 @@
       text-shadow: 0 0 6px #00aaff, 0 0 15px #005577;
     }
 
+    .theme-wooden .black-kills .kill-piece {
+      text-shadow: 0 0 6px #8d6e63, 0 0 15px #6d4c41;
+    }
+
     .square {
       display: flex;
       align-items: center;
@@ -383,9 +638,21 @@
                   inset -2px -2px 4px var(--shadow-light);
     }
 
+    .theme-wooden .sq-light {
+      background: linear-gradient(145deg, #e6d5c3, #d7ccc8);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.3),
+                  inset -2px -2px 4px rgba(255, 255, 255, 0.5);
+    }
+
     .sq-dark {
       background: var(--black-gradient);
       box-shadow: inset 2px 2px 4px var(--shadow-dark),
+                  inset -2px -2px 4px rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-wooden .sq-dark {
+      background: linear-gradient(145deg, #8d6e63, #6d4c41);
+      box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.4),
                   inset -2px -2px 4px rgba(255, 255, 255, 0.1);
     }
 
@@ -410,6 +677,11 @@
       transition: all 0.3s ease;
     }
 
+    .theme-wooden .piece-black {
+      text-shadow: 0 0 6px #8d6e63, 0 0 15px #6d4c41;
+      filter: drop-shadow(0 0 8px #6d4c41);
+    }
+
     .piece-white.selected {
       text-shadow: var(--highlight-white);
       transform: scale(1.2);
@@ -419,6 +691,10 @@
     .piece-black.selected {
       text-shadow: var(--highlight-black);
       transform: scale(1.2);
+    }
+
+    .theme-wooden .piece-black.selected {
+      text-shadow: 0 0 12px #8d6e63, 0 0 25px #6d4c41;
     }
 
     .king-in-check {
@@ -490,13 +766,21 @@
       z-index: 1000;
     }
 
+    .theme-wooden .promotion-modal {
+      background: rgba(93, 64, 55, 0.8);
+    }
+
     .promotion-options {
-      background: rgba(40, 40, 40, 0.95);
+      background: var(--modal-bg);
       border-radius: 12px;
       padding: 25px;
       box-shadow: 0 0 40px rgba(0, 170, 255, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid var(--modal-border);
       text-align: center;
+    }
+
+    .theme-wooden .promotion-options {
+      box-shadow: 0 0 40px rgba(141, 110, 99, 0.3);
     }
 
     .promotion-title {
@@ -504,6 +788,11 @@
       margin-bottom: 20px;
       color: #fff;
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .theme-wooden .promotion-title {
+      color: #5d4037;
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.5);
     }
 
     .promotion-pieces {
@@ -525,6 +814,10 @@
       background: rgba(60, 60, 60, 0.7);
     }
 
+    .theme-wooden .promotion-piece {
+      background: rgba(141, 110, 99, 0.3);
+    }
+
     .promotion-piece.white {
       color: #fff;
       text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
@@ -537,9 +830,154 @@
       border: 2px solid rgba(0, 170, 255, 0.3);
     }
 
+    .theme-wooden .promotion-piece.black {
+      text-shadow: 0 0 8px rgba(141, 110, 99, 0.7);
+      border: 2px solid rgba(141, 110, 99, 0.5);
+    }
+
     .promotion-piece:hover {
       transform: scale(1.15);
       background: rgba(80, 80, 80, 0.9);
+    }
+
+    .theme-wooden .promotion-piece:hover {
+      background: rgba(141, 110, 99, 0.5);
+    }
+
+    /* Player Names Modal Styles */
+    .player-names-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .theme-wooden .player-names-modal {
+      background: rgba(93, 64, 55, 0.8);
+    }
+
+    .player-names-form {
+      background: var(--modal-bg);
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 0 40px rgba(0, 170, 255, 0.3);
+      border: 1px solid var(--modal-border);
+      text-align: center;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .theme-wooden .player-names-form {
+      box-shadow: 0 0 40px rgba(141, 110, 99, 0.3);
+    }
+
+    .player-names-title {
+      font-size: 1.8rem;
+      margin-bottom: 25px;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .theme-wooden .player-names-title {
+      color: #5d4037;
+      text-shadow: 0 0 10px rgba(93, 64, 55, 0.5);
+    }
+
+    .player-input-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .player-input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+      color: #f0f0f0;
+    }
+
+    .theme-wooden .player-input-group label {
+      color: #5d4037;
+    }
+
+    .player-input-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(60, 60, 60, 0.7);
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .theme-wooden .player-input-group input {
+      border: 2px solid rgba(141, 110, 99, 0.4);
+      background: rgba(188, 170, 164, 0.5);
+      color: #5d4037;
+    }
+
+    .player-input-group input:focus {
+      outline: none;
+      border-color: var(--button-color);
+      box-shadow: 0 0 10px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .player-input-group input:focus {
+      border-color: #8d6e63;
+      box-shadow: 0 0 10px rgba(141, 110, 99, 0.5);
+    }
+
+    .player-names-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .player-names-btn {
+      background: rgba(0, 170, 255, 0.2);
+      border: 2px solid var(--button-color);
+      color: #fff;
+      padding: 12px 25px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .theme-wooden .player-names-btn {
+      background: rgba(141, 110, 99, 0.3);
+      border: 2px solid #8d6e63;
+      color: #5d4037;
+      text-shadow: none;
+    }
+
+    .player-names-btn:hover {
+      background: rgba(0, 170, 255, 0.4);
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.5);
+    }
+
+    .theme-wooden .player-names-btn:hover {
+      background: rgba(141, 110, 99, 0.5);
+      box-shadow: 0 0 15px rgba(141, 110, 99, 0.5);
+    }
+
+    .player-names-btn.primary {
+      background: var(--button-color);
+      box-shadow: 0 0 20px rgba(0, 170, 255, 0.7);
+    }
+
+    .theme-wooden .player-names-btn.primary {
+      background: #8d6e63;
+      box-shadow: 0 0 20px rgba(141, 110, 99, 0.7);
     }
 
     @media (max-width: 768px) {
@@ -562,12 +1000,9 @@
         height: 60px;
       }
 
-      .game-controls {
-        flex-direction: column;
-      }
-
-      h1 {
-        font-size: 2.5rem;
+      .settings-panel {
+        width: 280px;
+        right: 10px;
       }
     }
 
@@ -585,7 +1020,7 @@
         align-items: center;
       }
       
-      .mode-btn {
+      .mode-btn, .theme-btn, .settings-option-btn {
         width: 200px;
       }
 
@@ -600,6 +1035,36 @@
       .game-over-message p {
         font-size: 1.2rem;
       }
+
+      .player-names-form {
+        padding: 20px;
+      }
+
+      .player-names-buttons {
+        flex-direction: column;
+      }
+
+      .settings-btn {
+        top: 10px;
+        right: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
+
+      .settings-panel {
+        top: 60px;
+        right: 10px;
+        width: 250px;
+      }
+
+      .undo-btn {
+        top: 10px;
+        left: 10px;
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+      }
     }
   </style>
 </head>
@@ -608,24 +1073,48 @@
   <div class="game-wrapper">
     <h1>THE CHESS CLUB</h1>
     
-    <div class="game-controls">
-      <div class="game-mode-selection">
-        <div class="mode-buttons">
-          <button class="mode-btn active" id="pvpMode">Player vs Player</button>
-          <button class="mode-btn" id="pvcMode">Player vs Computer</button>
+    <!-- Undo Button -->
+    <button class="undo-btn" id="undoBtn" title="Undo Last Move">
+      ↶
+    </button>
+    
+    <!-- Settings Button -->
+    <button class="settings-btn" id="settingsBtn">
+      ⚙️
+    </button>
+    
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+      <h3>Game Settings</h3>
+      
+      <div class="settings-section">
+        <h4>Game Mode</h4>
+        <div class="settings-buttons">
+          <button class="settings-option-btn active" id="settingsPvpMode">Player vs Player</button>
+          <button class="settings-option-btn" id="settingsPvcMode">Player vs Computer</button>
         </div>
       </div>
       
-      <div class="difficulty-selector hidden" id="difficultySelector">
-        <span>AI Level:</span>
-        <button class="difficulty-btn" id="easyBtn">Easy</button>
-        <button class="difficulty-btn active" id="mediumBtn">Medium</button>
-        <button class="difficulty-btn" id="hardBtn">Hard</button>
+      <div class="settings-section">
+        <h4>AI Difficulty</h4>
+        <div class="difficulty-selector" id="settingsDifficultySelector">
+          <button class="difficulty-btn" id="settingsEasyBtn">Easy</button>
+          <button class="difficulty-btn active" id="settingsMediumBtn">Medium</button>
+          <button class="difficulty-btn" id="settingsHardBtn">Hard</button>
+        </div>
       </div>
       
-      <button class="sound-toggle active" id="soundToggle">
-        <span>🔊</span> Sound On
-      </button>
+      <div class="settings-section">
+        <h4>Sound & Theme</h4>
+        <div class="settings-buttons">
+          <button class="sound-toggle active" id="settingsSoundToggle">
+            <span>🔊</span> Sound On
+          </button>
+          <button class="settings-option-btn" id="settingsThemeToggle">
+            <span>🎨</span> Wood Theme
+          </button>
+        </div>
+      </div>
     </div>
     
     <div class="game-status" id="gameStatus"></div>
@@ -659,22 +1148,146 @@
     </div>
   </div>
 
+  <!-- Player Names Modal -->
+  <div class="player-names-modal" id="playerNamesModal" style="display: none;">
+    <div class="player-names-form">
+      <div class="player-names-title">Enter Player Names</div>
+      <div class="player-input-group">
+        <label for="whitePlayerName">White Player Name:</label>
+        <input type="text" id="whitePlayerName" placeholder="Enter white player name" value="Player 1">
+      </div>
+      <div class="player-input-group">
+        <label for="blackPlayerName">Black Player Name:</label>
+        <input type="text" id="blackPlayerName" placeholder="Enter black player name" value="Player 2">
+      </div>
+      <div class="player-names-buttons">
+        <button class="player-names-btn" id="cancelPlayerNames">Cancel</button>
+        <button class="player-names-btn primary" id="savePlayerNames">Start Game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden audio elements for game sounds -->
+  <audio id="gameStartSound" preload="auto">
+    <!-- Yahan aap apna sound file add karein -->
+    Example: <source src="soundeffect/aaiye bc dekhte hai.mp3" type="audio/mp3">
+  </audio>
+  
+  <audio id="backgroundMusic" loop preload="auto">
+    <!-- Yahan aap background music add karein -->
+    <!-- Example: <source src="your-background-music.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- Pawn Capture Sound -->
+  <audio id="pawnCaptureSound" preload="auto">
+    <!-- Yahan aap apna pawn capture sound file add karein -->
+    Example: <source src="soundeffect/hatt thari bahen ki.mp3" type="audio/mp3">
+  </audio>
+  
+  <!-- King Check Sound -->
+  <audio id="kingCheckSound" preload="auto">
+    <!-- Yahan aap apna king check sound file add karein -->
+    Example: <source src="soundeffect/bade khatarnak log hai.mp3" type="audio/mp3">
+  </audio>
+  
+  <!-- 15 Second Sound -->
+  <audio id="fifteenSecondSound" preload="auto">
+    <!-- Yahan aap apna 15 second sound file add karein -->
+    Example: <source src="/soundeffect/jaldi bol kal subha panwel nikalna hai.mp3" type="audio/mp3">
+  </audio>
+  
+  <!-- Game Over Sound -->
+  <audio id="gameOverSound" preload="auto">
+    <!-- Yahan aap apna game over sound file add karein -->
+    Example: <source src="/soundeffect/roz aate hai is ummeed me aaj jeetenge.mp3" type="audio/mp3">
+  </audio>
+
+  <!-- NEW: Rook Capture Sound -->
+  <audio id="rookCaptureSound" preload="auto">
+    <!-- Yahan aap apna rook capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/rook-capture.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- NEW: Knight Capture Sound -->
+  <audio id="knightCaptureSound" preload="auto">
+    <!-- Yahan aap apna knight capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/knight-capture.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- NEW: Bishop Capture Sound -->
+  <audio id="bishopCaptureSound" preload="auto">
+    <!-- Yahan aap apna bishop capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/bishop-capture.mp3" type="audio/mp3"> -->
+  </audio>
+  
+  <!-- NEW: Queen Capture Sound -->
+  <audio id="queenCaptureSound" preload="auto">
+    <!-- Yahan aap apna queen capture sound file add karein -->
+    <!-- Example: <source src="soundeffect/queen-capture.mp3" type="audio/mp3"> -->
+  </audio>
+
   <script>
+    // Audio elements
+    const gameStartSound = document.getElementById("gameStartSound");
+    const backgroundMusic = document.getElementById("backgroundMusic");
+    const pawnCaptureSound = document.getElementById("pawnCaptureSound");
+    const kingCheckSound = document.getElementById("kingCheckSound");
+    const fifteenSecondSound = document.getElementById("fifteenSecondSound");
+    const gameOverSound = document.getElementById("gameOverSound");
+    
+    // NEW: Rook, Knight, Bishop, Queen capture sounds
+    const rookCaptureSound = document.getElementById("rookCaptureSound");
+    const knightCaptureSound = document.getElementById("knightCaptureSound");
+    const bishopCaptureSound = document.getElementById("bishopCaptureSound");
+    const queenCaptureSound = document.getElementById("queenCaptureSound");
+    
+    // Play sound when the game loads
+    window.addEventListener('load', function() {
+      // Play the game start sound
+      if (soundEnabled) {
+        try {
+          gameStartSound.play().catch(e => {
+            console.log("Game start sound could not play automatically:", e);
+          });
+        } catch (error) {
+          console.log("Sound play error:", error);
+        }
+      }
+      
+      // Start the 15-second timer
+      startFifteenSecondTimer();
+    });
+
     const board = document.getElementById("chessboard");
     const turnDisplay = document.getElementById("turnDisplay");
     const gameStatus = document.getElementById("gameStatus");
     const whiteKills = document.getElementById("whiteKills");
     const blackKills = document.getElementById("blackKills");
-    const pvpModeBtn = document.getElementById("pvpMode");
-    const pvcModeBtn = document.getElementById("pvcMode");
     const promotionModal = document.getElementById("promotionModal");
     const promotionTitle = document.getElementById("promotionTitle");
     const promotionPieces = document.getElementById("promotionPieces");
-    const soundToggle = document.getElementById("soundToggle");
-    const easyBtn = document.getElementById("easyBtn");
-    const mediumBtn = document.getElementById("mediumBtn");
-    const hardBtn = document.getElementById("hardBtn");
-    const difficultySelector = document.getElementById("difficultySelector");
+    
+    // Player names elements
+    const playerNamesModal = document.getElementById("playerNamesModal");
+    const whitePlayerNameInput = document.getElementById("whitePlayerName");
+    const blackPlayerNameInput = document.getElementById("blackPlayerName");
+    const cancelPlayerNamesBtn = document.getElementById("cancelPlayerNames");
+    const savePlayerNamesBtn = document.getElementById("savePlayerNames");
+    
+    // Settings elements
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const settingsPvpMode = document.getElementById("settingsPvpMode");
+    const settingsPvcMode = document.getElementById("settingsPvcMode");
+    const settingsDifficultySelector = document.getElementById("settingsDifficultySelector");
+    const settingsEasyBtn = document.getElementById("settingsEasyBtn");
+    const settingsMediumBtn = document.getElementById("settingsMediumBtn");
+    const settingsHardBtn = document.getElementById("settingsHardBtn");
+    const settingsSoundToggle = document.getElementById("settingsSoundToggle");
+    const settingsThemeToggle = document.getElementById("settingsThemeToggle");
+    
+    // Undo button
+    const undoBtn = document.getElementById("undoBtn");
     
     let selectedSquare = null;
     let turn = "white";
@@ -684,12 +1297,26 @@
     let pendingPromotion = null;
     let soundEnabled = true;
     let difficulty = "medium";
+    let currentTheme = "default";
+    
+    // 15-second timer variables
+    let fifteenSecondTimer = null;
+    let fifteenSecondTimerRunning = false;
+    
+    // Player names
+    let playerNames = {
+      white: "Player 1",
+      black: "Player 2"
+    };
 
     // Track captured pieces
     let capturedPieces = {
       white: [],
       black: []
     };
+
+    // Move history for undo functionality
+    let moveHistory = [];
 
     const pieces = {
       black: { king: "♚", queen: "♛", rook: "♜", bishop: "♝", knight: "♞", pawn: "♟" },
@@ -715,6 +1342,33 @@
       Array(8).fill(pieces.white.pawn),
       [pieces.white.rook, pieces.white.knight, pieces.white.bishop, pieces.white.queen, pieces.white.king, pieces.white.bishop, pieces.white.knight, pieces.white.rook]
     ];
+
+    // 15-second timer function
+    function startFifteenSecondTimer() {
+      if (fifteenSecondTimerRunning) {
+        clearTimeout(fifteenSecondTimer);
+      }
+      
+      fifteenSecondTimer = setTimeout(() => {
+        playFifteenSecondSound();
+        // Restart the timer after playing the sound
+        startFifteenSecondTimer();
+      }, 15000); // 15 seconds
+      
+      fifteenSecondTimerRunning = true;
+    }
+    
+    function stopFifteenSecondTimer() {
+      if (fifteenSecondTimer) {
+        clearTimeout(fifteenSecondTimer);
+        fifteenSecondTimerRunning = false;
+      }
+    }
+    
+    function resetFifteenSecondTimer() {
+      stopFifteenSecondTimer();
+      startFifteenSecondTimer();
+    }
 
     // Sound effects using Web Audio API
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -752,7 +1406,21 @@
     }
 
     function playCheckSound() {
-      playSound(783.99, 0.3, 'sawtooth', 0.5);
+      // Use custom king check sound if available
+      if (soundEnabled) {
+        try {
+          kingCheckSound.currentTime = 0;
+          kingCheckSound.play().catch(e => {
+            console.log("King check sound could not play:", e);
+            // Fallback to regular check sound
+            playSound(783.99, 0.3, 'sawtooth', 0.5);
+          });
+        } catch (error) {
+          console.log("King check sound error:", error);
+          // Fallback to regular check sound
+          playSound(783.99, 0.3, 'sawtooth', 0.5);
+        }
+      }
     }
 
     function playCheckmateSound() {
@@ -783,11 +1451,269 @@
       playSound(220.00, 0.2, 'sawtooth', 0.3);
     }
 
-    // Sound toggle functionality
-    soundToggle.addEventListener('click', () => {
+    function playUndoSound() {
+      playSound(349.23, 0.2, 'sine', 0.3);
+    }
+
+    // NEW: Play 15-second sound
+    function playFifteenSecondSound() {
+      if (!soundEnabled || gameOver) return;
+      
+      try {
+        fifteenSecondSound.currentTime = 0;
+        fifteenSecondSound.play().catch(e => {
+          console.log("15-second sound could not play:", e);
+          // Fallback to regular sound
+          playSound(440.00, 0.5, 'sine', 0.3);
+        });
+      } catch (error) {
+        console.log("15-second sound error:", error);
+        // Fallback to regular sound
+        playSound(440.00, 0.5, 'sine', 0.3);
+      }
+    }
+
+    // NEW: Play game over sound (when king is captured)
+    function playGameOverSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        gameOverSound.currentTime = 0;
+        gameOverSound.play().catch(e => {
+          console.log("Game over sound could not play:", e);
+          // Fallback to regular win sound
+          playWinSound();
+        });
+      } catch (error) {
+        console.log("Game over sound error:", error);
+        // Fallback to regular win sound
+        playWinSound();
+      }
+    }
+
+    // NEW: Play pawn capture sound
+    function playPawnCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        pawnCaptureSound.currentTime = 0;
+        pawnCaptureSound.play().catch(e => {
+          console.log("Pawn capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Pawn capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play rook capture sound
+    function playRookCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        rookCaptureSound.currentTime = 0;
+        rookCaptureSound.play().catch(e => {
+          console.log("Rook capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Rook capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play knight capture sound
+    function playKnightCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        knightCaptureSound.currentTime = 0;
+        knightCaptureSound.play().catch(e => {
+          console.log("Knight capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Knight capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play bishop capture sound
+    function playBishopCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        bishopCaptureSound.currentTime = 0;
+        bishopCaptureSound.play().catch(e => {
+          console.log("Bishop capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Bishop capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // NEW: Play queen capture sound
+    function playQueenCaptureSound() {
+      if (!soundEnabled) return;
+      
+      try {
+        queenCaptureSound.currentTime = 0;
+        queenCaptureSound.play().catch(e => {
+          console.log("Queen capture sound could not play:", e);
+          // Fallback to regular capture sound
+          playCaptureSound();
+        });
+      } catch (error) {
+        console.log("Queen capture sound error:", error);
+        // Fallback to regular capture sound
+        playCaptureSound();
+      }
+    }
+
+    // Undo functionality
+    function undoLastMove() {
+      if (moveHistory.length === 0 || gameOver || pendingPromotion) {
+        playErrorSound();
+        return;
+      }
+      
+      const lastMove = moveHistory.pop();
+      
+      // Restore the board state
+      const { fromRow, fromCol, toRow, toCol, piece, capturedPiece, pawnFirstMoveState, capturedPiecesState } = lastMove;
+      
+      // Move piece back to original position
+      const fromSquare = getSquare(fromRow, fromCol);
+      const toSquare = getSquare(toRow, toCol);
+      
+      // Clear both squares
+      fromSquare.innerHTML = "";
+      toSquare.innerHTML = "";
+      
+      // Place piece back in original position
+      const movedPiece = document.createElement("span");
+      movedPiece.textContent = piece;
+      movedPiece.classList.add(getPieceColor(piece) === "white" ? "piece-white" : "piece-black");
+      fromSquare.appendChild(movedPiece);
+      
+      // Restore captured piece if there was one
+      if (capturedPiece) {
+        const capturedPieceEl = document.createElement("span");
+        capturedPieceEl.textContent = capturedPiece;
+        capturedPieceEl.classList.add(getPieceColor(capturedPiece) === "white" ? "piece-white" : "piece-black");
+        toSquare.appendChild(capturedPieceEl);
+        
+        // Remove from captured pieces list
+        const capturingColor = getPieceColor(piece);
+        const capturedColor = getPieceColor(capturedPiece);
+        
+        if (capturedPieces[capturingColor].length > 0) {
+          capturedPieces[capturingColor].pop();
+        }
+      }
+      
+      // Restore pawn first move state
+      pawnFirstMove = { ...pawnFirstMoveState };
+      
+      // Restore captured pieces state
+      capturedPieces = {
+        white: [...capturedPiecesState.white],
+        black: [...capturedPiecesState.black]
+      };
+      
+      // Update turn
+      turn = turn === "white" ? "black" : "white";
+      updateTurnDisplay();
+      
+      // Update kill display
+      updateKillDisplay();
+      
+      // Update game status
+      updateGameStatus();
+      
+      // Update undo button state
+      updateUndoButtonState();
+      
+      // Reset 15-second timer
+      resetFifteenSecondTimer();
+      
+      // Play undo sound
+      playUndoSound();
+    }
+
+    function updateUndoButtonState() {
+      undoBtn.disabled = moveHistory.length === 0 || gameOver || pendingPromotion;
+    }
+
+    // Settings functionality
+    settingsBtn.addEventListener("click", () => {
+      settingsPanel.classList.toggle("show");
+      playSelectSound();
+    });
+    
+    // Close settings panel when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!settingsBtn.contains(e.target) && !settingsPanel.contains(e.target)) {
+        settingsPanel.classList.remove("show");
+      }
+    });
+    
+    // Settings panel game mode selection
+    settingsPvpMode.addEventListener("click", () => {
+      setGameMode("pvp");
+      settingsPvpMode.classList.add("active");
+      settingsPvcMode.classList.remove("active");
+      playSelectSound();
+    });
+
+    settingsPvcMode.addEventListener("click", () => {
+      setGameMode("pvc");
+      settingsPvcMode.classList.add("active");
+      settingsPvpMode.classList.remove("active");
+      playSelectSound();
+    });
+    
+    // Settings panel difficulty selection
+    settingsEasyBtn.addEventListener("click", () => {
+      setDifficulty("easy");
+      settingsEasyBtn.classList.add("active");
+      settingsMediumBtn.classList.remove("active");
+      settingsHardBtn.classList.remove("active");
+      playSelectSound();
+    });
+
+    settingsMediumBtn.addEventListener("click", () => {
+      setDifficulty("medium");
+      settingsMediumBtn.classList.add("active");
+      settingsEasyBtn.classList.remove("active");
+      settingsHardBtn.classList.remove("active");
+      playSelectSound();
+    });
+
+    settingsHardBtn.addEventListener("click", () => {
+      setDifficulty("hard");
+      settingsHardBtn.classList.add("active");
+      settingsEasyBtn.classList.remove("active");
+      settingsMediumBtn.classList.remove("active");
+      playSelectSound();
+    });
+    
+    // Settings panel sound toggle
+    settingsSoundToggle.addEventListener("click", () => {
       soundEnabled = !soundEnabled;
-      soundToggle.classList.toggle('active', soundEnabled);
-      soundToggle.innerHTML = soundEnabled ? 
+      settingsSoundToggle.classList.toggle("active", soundEnabled);
+      settingsSoundToggle.innerHTML = soundEnabled ? 
         '<span>🔊</span> Sound On' : 
         '<span>🔇</span> Sound Off';
       
@@ -795,62 +1721,134 @@
         playSound(523.25, 0.1, 'sine', 0.2);
       }
     });
+    
+    // Settings panel theme toggle
+    settingsThemeToggle.addEventListener("click", () => {
+      if (currentTheme === "default") {
+        document.body.classList.add("theme-wooden");
+        settingsThemeToggle.innerHTML = '<span>🎨</span> Dark Theme';
+        currentTheme = "wooden";
+      } else {
+        document.body.classList.remove("theme-wooden");
+        settingsThemeToggle.innerHTML = '<span>🎨</span> Wood Theme';
+        currentTheme = "default";
+      }
+      playSelectSound();
+    });
+
+    // Undo button event listener
+    undoBtn.addEventListener("click", undoLastMove);
 
     // Difficulty selection
     function setDifficulty(level) {
       difficulty = level;
-      easyBtn.classList.toggle('active', level === 'easy');
-      mediumBtn.classList.toggle('active', level === 'medium');
-      hardBtn.classList.toggle('active', level === 'hard');
+      settingsEasyBtn.classList.toggle('active', level === 'easy');
+      settingsMediumBtn.classList.toggle('active', level === 'medium');
+      settingsHardBtn.classList.toggle('active', level === 'hard');
     }
 
-    easyBtn.addEventListener('click', () => {
-      setDifficulty('easy');
-      playSelectSound();
-    });
-
-    mediumBtn.addEventListener('click', () => {
-      setDifficulty('medium');
-      playSelectSound();
-    });
-
-    hardBtn.addEventListener('click', () => {
-      setDifficulty('hard');
-      playSelectSound();
-    });
-
     // Game mode selection
-    pvpModeBtn.addEventListener('click', () => {
-      setGameMode('pvp');
-      playSelectSound();
-    });
-
-    pvcModeBtn.addEventListener('click', () => {
-      setGameMode('pvc');
-      playSelectSound();
-    });
-
     function setGameMode(mode) {
       gameMode = mode;
       
-      pvpModeBtn.classList.toggle('active', mode === 'pvp');
-      pvcModeBtn.classList.toggle('active', mode === 'pvc');
+      settingsPvpMode.classList.toggle('active', mode === 'pvp');
+      settingsPvcMode.classList.toggle('active', mode === 'pvc');
       
       // Show/hide difficulty selector
-      difficultySelector.classList.toggle('hidden', mode === 'pvp');
+      settingsDifficultySelector.classList.toggle('hidden', mode === 'pvp');
+      
+      // Show player names modal for PvP mode
+      if (mode === 'pvp') {
+        showPlayerNamesModal();
+      } else {
+        // Reset to default names for computer mode
+        playerNames.white = "Player";
+        playerNames.black = "Computer";
+        updateTurnDisplay();
+      }
       
       if (!gameOver) {
         resetGame();
       }
     }
 
+    // Player names modal functionality
+    function showPlayerNamesModal() {
+      // Set current values
+      whitePlayerNameInput.value = playerNames.white;
+      blackPlayerNameInput.value = playerNames.black;
+      
+      // Show the modal
+      playerNamesModal.style.display = 'flex';
+    }
+
+    function hidePlayerNamesModal() {
+      playerNamesModal.style.display = 'none';
+    }
+
+    function savePlayerNames() {
+      const whiteName = whitePlayerNameInput.value.trim() || "Player 1";
+      const blackName = blackPlayerNameInput.value.trim() || "Player 2";
+      
+      playerNames.white = whiteName;
+      playerNames.black = blackName;
+      
+      updateTurnDisplay();
+      hidePlayerNamesModal();
+      
+      // Reset the game with new player names
+      resetGame();
+    }
+
+    function updateTurnDisplay() {
+      if (gameMode === 'pvp') {
+        turnDisplay.textContent = turn === "white" ? playerNames.white : playerNames.black;
+      } else {
+        turnDisplay.textContent = turn === "white" ? "Player" : "Computer";
+      }
+      turnDisplay.style.color = turn === "white" ? "#fff" : "#00aaff";
+    }
+
+    // Event listeners for player names modal
+    savePlayerNamesBtn.addEventListener('click', savePlayerNames);
+    
+    cancelPlayerNamesBtn.addEventListener('click', () => {
+      // If canceling from initial setup, default to PvP mode
+      if (gameMode === 'pvp') {
+        hidePlayerNamesModal();
+        // Keep the current player names
+        updateTurnDisplay();
+      }
+    });
+
+    // Allow pressing Enter to save names
+    whitePlayerNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        savePlayerNames();
+      }
+    });
+    
+    blackPlayerNameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        savePlayerNames();
+      }
+    });
+
     function showGameOverMessage(winner) {
       const boardContainer = document.querySelector('.board-container');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'game-over-message';
+      
+      let winnerName;
+      if (gameMode === 'pvp') {
+        winnerName = winner === 'White' ? playerNames.white : playerNames.black;
+      } else {
+        winnerName = winner === 'White' ? 'Player' : 'Computer';
+      }
+      
       messageDiv.innerHTML = `
-        <h2>${winner} WINS!</h2>
-        <p>${winner === 'White' ? '⚪' : '⚫'} ${winner} player has won the game!</p>
+        <h2>${winnerName} WINS!</h2>
+        <p>${winner === 'White' ? '⚪' : '⚫'} ${winnerName} has won the game!</p>
         <button class="restart-btn" onclick="resetGame()">Play Again</button>
       `;
       boardContainer.appendChild(messageDiv);
@@ -868,15 +1866,31 @@
       pawnFirstMove = {};
       capturedPieces = { white: [], black: [] };
       pendingPromotion = null;
+      moveHistory = [];
       
       buildBoard();
       
       updateKillDisplay();
       updateGameStatus();
-      turnDisplay.textContent = "White";
-      turnDisplay.style.color = "#fff";
+      updateTurnDisplay();
+      updateUndoButtonState();
+      
+      // Reset 15-second timer
+      resetFifteenSecondTimer();
       
       promotionModal.style.display = 'none';
+      
+      // Play game start sound on reset as well
+      if (soundEnabled) {
+        try {
+          gameStartSound.currentTime = 0;
+          gameStartSound.play().catch(e => {
+            console.log("Game start sound could not play:", e);
+          });
+        } catch (error) {
+          console.log("Sound play error:", error);
+        }
+      }
     }
 
     // Initialize pawn first move tracking
@@ -992,7 +2006,7 @@
       square.innerHTML = '';
       const newPiece = document.createElement('span');
       newPiece.textContent = pieceSymbol;
-      newPiece.classList.add(color === 'white' ? 'piece-white' : 'piece-black');
+      newPiece.classList.add(color === 'white' ? "piece-white" : "piece-black");
       square.appendChild(newPiece);
       
       promotionModal.style.display = 'none';
@@ -1001,10 +2015,13 @@
       playMoveSound();
       
       turn = turn === "white" ? "black" : "white";
-      turnDisplay.textContent = turn.charAt(0).toUpperCase() + turn.slice(1);
-      turnDisplay.style.color = turn === "white" ? "#fff" : "#00aaff";
+      updateTurnDisplay();
+      
+      // Reset 15-second timer after promotion
+      resetFifteenSecondTimer();
       
       updateGameStatus();
+      updateUndoButtonState();
       
       if (gameMode === "pvc" && turn === "black" && !gameOver) {
         setTimeout(makeComputerMove, 800);
@@ -1184,9 +2201,14 @@
           const { fromRow, fromCol, toRow, toCol, piece } = randomMove;
           const targetPiece = getPieceAt(toRow, toCol);
           
+          // Save move to history before executing
+          saveMoveToHistory(fromRow, fromCol, toRow, toCol, piece, targetPiece);
+          
           if (targetPiece && getPieceColor(targetPiece) === "white") {
             addCapturedPiece(targetPiece, "black");
-            playCaptureSound();
+            
+            // Play specific capture sound based on piece type
+            playPieceCaptureSound(piece);
             
             if (targetPiece === pieces.white.king) {
               checkKingCapture(targetPiece, "black");
@@ -1213,13 +2235,59 @@
             showPromotionModal("black", toSquare);
           } else {
             turn = "white";
-            turnDisplay.textContent = "White";
-            turnDisplay.style.color = "#fff";
+            updateTurnDisplay();
+            
+            // Reset 15-second timer after computer move
+            resetFifteenSecondTimer();
             
             updateGameStatus();
+            updateUndoButtonState();
           }
         }, difficulty === "hard" ? 1200 : 800);
       }
+    }
+
+    // NEW: Play specific capture sound based on piece type
+    function playPieceCaptureSound(piece) {
+      const pieceType = getPieceType(piece);
+      
+      switch(pieceType) {
+        case "pawn":
+          playPawnCaptureSound();
+          break;
+        case "rook":
+          playRookCaptureSound();
+          break;
+        case "knight":
+          playKnightCaptureSound();
+          break;
+        case "bishop":
+          playBishopCaptureSound();
+          break;
+        case "queen":
+          playQueenCaptureSound();
+          break;
+        default:
+          playCaptureSound();
+          break;
+      }
+    }
+
+    // Save move to history
+    function saveMoveToHistory(fromRow, fromCol, toRow, toCol, piece, capturedPiece) {
+      moveHistory.push({
+        fromRow,
+        fromCol,
+        toRow,
+        toCol,
+        piece,
+        capturedPiece,
+        pawnFirstMoveState: { ...pawnFirstMove },
+        capturedPiecesState: {
+          white: [...capturedPieces.white],
+          black: [...capturedPieces.black]
+        }
+      });
     }
 
     // Check if a move would put the opponent in check
@@ -1707,8 +2775,9 @@
         const winnerColor = capturedKingColor === "white" ? "Black" : "White";
         
         gameOver = true;
+        stopFifteenSecondTimer();
         showGameOverMessage(winnerColor);
-        playWinSound();
+        playGameOverSound();
         return true;
       }
       return false;
@@ -1734,13 +2803,18 @@
           kingPiece.classList.add('king-in-check');
         }
         
+        // Check for checkmate (king is in check and has no valid moves)
         if (!hasAnyValidMove(currentKingColor)) {
           const winnerColor = currentKingColor === "white" ? "Black" : "White";
+          gameStatus.textContent = "CHECKMATE!";
+          gameStatus.classList.add("checkmate-status");
           gameOver = true;
+          stopFifteenSecondTimer();
           showGameOverMessage(winnerColor);
           playCheckmateSound();
           return;
         } else {
+          // Just check, not checkmate
           gameStatus.textContent = "CHECK! - Save Your King!";
           gameStatus.classList.add("check-status");
           playCheckSound();
@@ -2021,9 +3095,14 @@
         }
         
         if (isValid) {
+          // Save move to history before executing
+          saveMoveToHistory(selectedRow, selectedCol, row, col, selectedPiece, piece);
+          
           if (piece && moveType === "capture") {
             addCapturedPiece(piece, selectedColor);
-            playCaptureSound();
+            
+            // Play specific capture sound based on piece type
+            playPieceCaptureSound(selectedPiece);
             
             if (piece === pieces.white.king || piece === pieces.black.king) {
               checkKingCapture(piece, selectedColor);
@@ -2056,10 +3135,13 @@
           } else {
             if (!gameOver) {
               turn = turn === "white" ? "black" : "white";
-              turnDisplay.textContent = turn.charAt(0).toUpperCase() + turn.slice(1);
-              turnDisplay.style.color = turn === "white" ? "#fff" : "#00aaff";
+              updateTurnDisplay();
+              
+              // Reset 15-second timer after move
+              resetFifteenSecondTimer();
               
               updateGameStatus();
+              updateUndoButtonState();
               
               if (gameMode === "pvc" && turn === "black" && !gameOver) {
                 setTimeout(makeComputerMove, 800);
@@ -2110,6 +3192,7 @@
     });
 
     updateGameStatus();
+    updateUndoButtonState();
   </script>
 </body>
 </html>
